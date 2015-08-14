@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"bitbucket.org/nstratos/anisync"
+	"bitbucket.org/nstratos/anisync/anisync"
 )
 
 //go:generate go run generate/includeagent.go
