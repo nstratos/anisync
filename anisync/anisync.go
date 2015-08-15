@@ -1,7 +1,10 @@
 package anisync
 
 import (
+	"log"
 	"sort"
+	"strconv"
+	"time"
 
 	"github.com/nstratos/go-hummingbird/hb"
 	"github.com/nstratos/go-myanimelist/mal"
@@ -59,9 +62,23 @@ func fromListMAL(malist mal.AnimeList) []Anime {
 			EpisodesWatched: mala.MyWatchedEpisodes,
 			Status:          fromMALStatus(mala.MyStatus),
 		}
+		lastUpdated, err := fromMALMyLastUpdated(mala.MyLastUpdated)
+		if err != nil {
+			log.Println("Could not parse mal time:", err)
+		}
+		a.LastUpdated = lastUpdated
 		anime = append(anime, a)
 	}
 	return anime
+}
+
+func fromMALMyLastUpdated(updated string) (*time.Time, error) {
+	i, err := strconv.ParseInt(updated, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	t := time.Unix(i, 0)
+	return &t, nil
 }
 
 func (s *AnimeService) ListHB(username string) ([]Anime, error) {
@@ -83,6 +100,7 @@ func fromListHB(list []hb.LibraryEntry) []Anime {
 			Title:           hba.Anime.Title,
 			EpisodesWatched: hba.EpisodesWatched,
 			Status:          hba.Status,
+			LastUpdated:     hba.UpdatedAt,
 		}
 		anime = append(anime, a)
 	}
@@ -128,6 +146,7 @@ type Anime struct {
 	Status          string
 	Title           string
 	EpisodesWatched int
+	LastUpdated     *time.Time
 }
 
 type ByID []Anime
@@ -141,3 +160,66 @@ type ByTitle []Anime
 func (a ByTitle) Len() int           { return len(a) }
 func (a ByTitle) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByTitle) Less(i, j int) bool { return a[i].Title < a[j].Title }
+
+// assuming right is larger than left.
+// assuming right will update left.
+type Diff struct {
+	Left       []Anime
+	Right      []Anime
+	Missing    []Anime
+	NeedUpdate []Anime
+	UpToDate   []Anime
+	Equal      []Anime
+}
+
+// Compare compares two anime lists. It is assuming right is larger than left.
+func Compare(left, right []Anime) *Diff {
+	diff := &Diff{Left: left, Right: right}
+	var (
+		missing    []Anime
+		needUpdate []Anime
+		upToDate   []Anime
+		equal      []Anime
+	)
+	for _, a := range right {
+		found := FindByID(left, a.ID)
+		if found != nil {
+			c := compare(*found, a)
+			switch c {
+			case 0:
+				// equal, nothing to do
+				equal = append(equal, a)
+			case -1:
+				// update for mal
+				needUpdate = append(needUpdate, a)
+			case 1:
+				// update for hb
+				upToDate = append(upToDate, a)
+			}
+		} else {
+			missing = append(missing, a)
+		}
+	}
+	diff.Missing = missing
+	diff.NeedUpdate = needUpdate
+	diff.UpToDate = upToDate
+	diff.Equal = equal
+	return diff
+}
+
+//
+// if = 0 it means anime are equal.
+// if < 0 it means right has more than left.
+// if > 0 it means left has more than right.
+func compare(left, right Anime) int {
+	if left.LastUpdated.Before(*right.LastUpdated) {
+		return -1
+	}
+	if left.LastUpdated.After(*right.LastUpdated) {
+		return 1
+	}
+	if left.LastUpdated.Equal(*right.LastUpdated) {
+		return 0
+	}
+	return 0
+}
