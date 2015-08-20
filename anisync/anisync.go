@@ -1,6 +1,7 @@
 package anisync
 
 import (
+	"fmt"
 	"log"
 	"sort"
 	"strconv"
@@ -50,7 +51,6 @@ func (s *AnimeService) ListMAL(username string) ([]Anime, error) {
 	anime := fromListMAL(*list)
 	sort.Sort(ByID(anime))
 	return anime, nil
-
 }
 
 func fromListMAL(malist mal.AnimeList) []Anime {
@@ -70,6 +70,26 @@ func fromListMAL(malist mal.AnimeList) []Anime {
 		anime = append(anime, a)
 	}
 	return anime
+}
+
+func toMALEntry(a Anime) mal.AnimeEntry {
+	e := mal.AnimeEntry{
+		Episode: a.EpisodesWatched,
+		Status:  toMALStatus(a.Status),
+	}
+	if a.EpisodesWatched == 0 {
+		e.Episode = -1
+	}
+	return e
+}
+
+func toMALEntries(anime []Anime) []mal.AnimeEntry {
+	var malEntries []mal.AnimeEntry
+	for _, a := range anime {
+		e := toMALEntry(a)
+		malEntries = append(malEntries, e)
+	}
+	return malEntries
 }
 
 func fromMALMyLastUpdated(updated string) (*time.Time, error) {
@@ -141,6 +161,23 @@ func fromMALStatus(status int) string {
 	}
 }
 
+func toMALStatus(status string) string {
+	switch status {
+	case StatusCurrentlyWatching:
+		return "1"
+	case StatusCompleted:
+		return "2"
+	case StatusOnHold:
+		return "3"
+	case StatusDropped:
+		return "4"
+	case StatusPlanToWatch:
+		return "6"
+	default:
+		return "1"
+	}
+}
+
 type Anime struct {
 	ID              int
 	Status          string
@@ -161,39 +198,41 @@ func (a ByTitle) Len() int           { return len(a) }
 func (a ByTitle) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByTitle) Less(i, j int) bool { return a[i].Title < a[j].Title }
 
-// assuming right is larger than left.
-// assuming right will update left.
+// Diff represents the difference of two anime lists (left and right). It
+// contains the orignal lists, the missing anime, the anime that need to
+// be updated and the ones that are up to date. It is assuming that right
+// list is larger than left list. Typically the left list will be the
+// MyAnimeList and the right list will be the Hummingbird list.
 type Diff struct {
 	Left       []Anime
 	Right      []Anime
 	Missing    []Anime
 	NeedUpdate []Anime
 	UpToDate   []Anime
-	Equal      []Anime
 }
 
-// Compare compares two anime lists. It is assuming right is larger than left.
+// Compare compares two anime lists and returns the difference containing
+// the orignal lists, the missing anime, the anime that need to be updated
+// and the ones that are up to date. It is assuming that right list is
+// larger than left list. Typically the left list will be the MyAnimeList
+// and the right list will be the Hummingbird list.
 func Compare(left, right []Anime) *Diff {
 	diff := &Diff{Left: left, Right: right}
 	var (
 		missing    []Anime
 		needUpdate []Anime
 		upToDate   []Anime
-		equal      []Anime
 	)
 	for _, a := range right {
 		found := FindByID(left, a.ID)
 		if found != nil {
-			c := compare(*found, a)
+			c := compareLastUpdate(*found, a)
 			switch c {
-			case 0:
-				// equal, nothing to do
-				equal = append(equal, a)
 			case -1:
 				// update for mal
 				needUpdate = append(needUpdate, a)
-			case 1:
-				// update for hb
+			case 0, 1:
+				// up to date, nothing to do
 				upToDate = append(upToDate, a)
 			}
 		} else {
@@ -203,15 +242,14 @@ func Compare(left, right []Anime) *Diff {
 	diff.Missing = missing
 	diff.NeedUpdate = needUpdate
 	diff.UpToDate = upToDate
-	diff.Equal = equal
 	return diff
 }
 
 //
-// if = 0 it means anime are equal.
-// if < 0 it means right has more than left.
-// if > 0 it means left has more than right.
-func compare(left, right Anime) int {
+// if 0 it means anime are equal.
+// if -1 it means right has more than left.
+// if 1 it means left has more than right.
+func compareLastUpdate(left, right Anime) int {
 	if left.LastUpdated.Before(*right.LastUpdated) {
 		return -1
 	}
@@ -222,4 +260,27 @@ func compare(left, right Anime) int {
 		return 0
 	}
 	return 0
+}
+
+// UpdateMAL gets the difference between the two anime lists and updates
+// the MyAnimeList. It adds the missing anime and updates the ones that need
+// updating based on the values of the Hummingbird list.
+func (s *AnimeService) UpdateMAL(diff Diff) error {
+	u := diff.NeedUpdate[0]
+	err := s.UpdateMALAnime(u)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *AnimeService) UpdateMALAnime(a Anime) error {
+	fmt.Printf("updating anime %+v\n", a)
+	e := toMALEntry(a)
+	fmt.Printf("as mal entry %+v\n", e)
+	_, err := s.client.mal.Anime.Update(a.ID, e)
+	if err != nil {
+		return err
+	}
+	return nil
 }

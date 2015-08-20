@@ -4,8 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
+	"strings"
+
+	"github.com/howeyc/gopass"
 
 	"bitbucket.org/nstratos/anisync/anisync"
 )
@@ -13,9 +15,9 @@ import (
 //go:generate go run generate/includeagent.go
 
 var (
-	malUsername = flag.String("mal-username", "", "your MyAnimeList username, alternatively set ANISYNC_MAL_USERNAME")
-	malPassword = flag.String("mal-password", "", "your MyAnimeList password, alternatively set ANISYNC_MAL_PASSWORD")
-	hbUsername  = flag.String("hb-username", "", "your Hummingbird  username, alternatively set ANISYNC_HB_USERNAME")
+	malUsername = flag.String("mal-username", "", "Your MyAnimeList `username`, alternatively set MAL_USERNAME.")
+	malPassword = flag.String("mal-password", "", "Your MyAnimeList `password`, alternatively set MAL_PASSWORD.")
+	hbUsername  = flag.String("hb-username", "", "Your Hummingbird `username`, alternatively set HB_USERNAME.")
 )
 
 func findAnimeInListByTitle(anime, list []anisync.Anime, w io.Writer) {
@@ -48,99 +50,114 @@ func findAnimeInListByID(anime, list []anisync.Anime, w io.Writer) {
 	fmt.Fprintf(w, "Found %d matches on list out of %d\n", matches, len(list))
 }
 
+const (
+	usageExample1 = `Example 1: anisync -mal-username='AnimeFan' -mal-password='SecurePassword' -hb-username='AnimeFan'`
+	usageExample2 = `Example 2: MAL_USERNAME='AnimeFan' MAL_PASSWORD='SecurePassword' HB_USERNAME='AnimeFan' anisync`
+)
+
+func customUsage() {
+	fmt.Println("Usage: anisync [OPTION]...")
+	fmt.Println("Sync your myanimelist.net list with your hummingbird.me anime list.")
+	fmt.Println()
+	flag.PrintDefaults()
+	fmt.Println()
+	fmt.Println(usageExample1)
+	fmt.Println()
+	fmt.Println(usageExample2)
+}
+
 func main() {
-	flag.Usage = func() {
-		fmt.Printf("Usage: anisync [options] param>\n\n")
-		flag.PrintDefaults()
-		fmt.Printf("\n")
-		fmt.Printf("Example 1: anisync -mal-username='AnimeFan' -mal-password='SecurePassword' -hb-username='AnimeFan'\n\n")
-		fmt.Printf("Example 2: ANISYNC_MAL_USERNAME='AnimeFan' ANISYNC_MAL_PASSWORD='SecurePassword' ANISYNC_HB_USERNAME='AnimeFan' anisync\n\n")
-	}
+	flag.Usage = customUsage
 	flag.Parse()
-	if *malUsername == "" || *malPassword == "" || *hbUsername == "" {
-		*malUsername = os.Getenv("ANISYNC_MAL_USERNAME")
-		*malPassword = os.Getenv("ANISYNC_MAL_PASSWORD")
-		*hbUsername = os.Getenv("ANISYNC_HB_USERNAME")
+
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	var emptyCredentials = func() bool {
 		if *malUsername == "" || *malPassword == "" || *hbUsername == "" {
+			return true
+		}
+		return false
+	}
+	if emptyCredentials() {
+		*malUsername = os.Getenv("MAL_USERNAME")
+		*malPassword = os.Getenv("MAL_PASSWORD")
+		*hbUsername = os.Getenv("HB_USERNAME")
+		if emptyCredentials() {
 			flag.Usage()
-			os.Exit(2)
+			return fmt.Errorf("no credentials were provided")
 		}
 	}
 
 	// malAgent is produced by go generate.
 	c := anisync.NewClient(malAgent)
-	err := c.VerifyMALCredentials(*malUsername, *malPassword)
-	if err != nil {
-		log.Fatalf("Could not verify mal credentials for user %s (%s).", *malUsername, err)
-	}
 
 	malist, err := c.Anime.ListMAL(*malUsername)
 	if err != nil {
-		log.Fatalln(err)
+		return fmt.Errorf("could not get myAnimeList %v", err)
 	}
 
 	hblist, err := c.Anime.ListHB(*hbUsername)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("could not get Hummingbird list %v", err)
 	}
 
 	diff := anisync.Compare(malist, hblist)
 
+	printDiffReport(*diff)
+
+	fmt.Printf("Proceed with updating and adding missing anime to your MyAnimeList? (y/n) ")
+	var answer string
+	if _, err := fmt.Scanf("%v\n", &answer); err != nil {
+		return err
+	}
+	proceed := strings.HasPrefix(strings.ToLower(answer), "y")
+	if !proceed {
+		return nil
+	}
+	if *malPassword == "" {
+
+		fmt.Printf("Enter MyAnimeList password for user %v:\n", *malUsername)
+		pass := gopass.GetPasswdMasked()
+		*malPassword = string(pass)
+	}
+
+	err = c.VerifyMALCredentials(*malUsername, *malPassword)
+	if err != nil {
+		return fmt.Errorf("could not verify MAL credentials for user %s", *malUsername)
+	}
+	fmt.Println("Verification was successful!")
+	fmt.Println("Starting Update...")
+
+	err = c.Anime.UpdateMAL(*diff)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func printDiffReport(diff anisync.Diff) {
+	fmt.Println("Missing:")
 	for _, m := range diff.Missing {
 		fmt.Printf("--- %7v \t%v\n", m.ID, m.Title)
 	}
-	fmt.Println()
+	fmt.Println("Need update:")
 	for _, u := range diff.NeedUpdate {
-		fmt.Printf("^^^ %7v \t%v\n", u.ID, u.Title)
+		fmt.Printf("<<< %7v \t%v\n", u.ID, u.Title)
 	}
+	fmt.Println("Up to date:")
 	for _, u := range diff.UpToDate {
-		fmt.Printf("vvv %7v \t%v\n", u.ID, u.Title)
+		fmt.Printf(">>> %7v \t%v\n", u.ID, u.Title)
 	}
 	fmt.Println()
-	for _, e := range diff.Equal {
-		fmt.Printf("=== %7v \t%v\n", e.ID, e.Title)
-	}
-	fmt.Printf("malist: %v\n", len(malist))
-	fmt.Printf("hblist: %v\n", len(hblist))
-	fmt.Printf("missing:  %v\n", len(diff.Missing))
-	fmt.Printf("need update:  %v\n", len(diff.NeedUpdate))
-	fmt.Printf("up to date:  %v\n", len(diff.UpToDate))
-	fmt.Printf("equal:  %v\n", len(diff.Equal))
-
-	//f1, err := os.Create("hb_in_mal.txt")
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//defer f1.Close()
-	//fmt.Fprintln(f1, "*** HB IN MAL ***")
-	//findAnimeInListByID(hblist, malist, f1)
-
-	//f2, err := os.Create("mal_in_hb.txt")
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//defer f2.Close()
-	//fmt.Fprintln(f2, "*** MAL IN HB ***")
-	//findAnimeInListByID(malist, hblist, f2)
-
-	//f3, err := os.Create("mal.txt")
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//defer f3.Close()
-	//for _, mala := range malist {
-	//	fmt.Fprintf(f3, "%7v \t%v\n", mala.ID, mala.Title)
-	//}
-	//fmt.Fprintf(f3, "total: %v\n", len(malist))
-
-	//f4, err := os.Create("hb.txt")
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//defer f4.Close()
-	//for _, hba := range hblist {
-	//	fmt.Fprintf(f4, "%7v \t%v\n", hba.ID, hba.Title)
-	//}
-	//fmt.Fprintf(f4, "total: %v\n", len(hblist))
-
+	fmt.Printf("Hummingbird entries: %v\n", len(diff.Right))
+	fmt.Printf("MyAnimelist entries: %v\n", len(diff.Left))
+	fmt.Printf("Missing: %v\n", len(diff.Missing))
+	fmt.Printf("Need update: %v\n", len(diff.NeedUpdate))
+	fmt.Printf("Up to date: %v\n", len(diff.UpToDate))
 }
