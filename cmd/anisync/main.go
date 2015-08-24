@@ -110,6 +110,12 @@ func run() error {
 
 	printDiffReport(*diff)
 
+	if len(diff.Missing) == 0 && len(diff.NeedUpdate) == 0 {
+		fmt.Println("Your MyAnimeList is up to date with your Hummingbird list.")
+		return nil
+
+	}
+
 	fmt.Printf("Proceed with updating and adding missing anime to your MyAnimeList? (y/n) ")
 	var answer string
 	if _, err := fmt.Scanf("%v\n", &answer); err != nil {
@@ -133,9 +139,20 @@ func run() error {
 	fmt.Println("Verification was successful!")
 	fmt.Println("Starting Update...")
 
-	err = c.Anime.UpdateMAL(*diff)
+	fails, err := c.Anime.UpdateMAL(*diff)
 	if err != nil {
-		return err
+		for _, f := range fails {
+
+			fmt.Printf("failed to update (%v %v): %v\n", f.Anime.ID, f.Anime.Title, f.Error)
+		}
+	}
+
+	fails, err = c.Anime.AddMAL(*diff)
+	if err != nil {
+		for _, f := range fails {
+
+			fmt.Printf("failed to add (%v %v): %v\n", f.Anime.ID, f.Anime.Title, f.Error)
+		}
 	}
 
 	return nil

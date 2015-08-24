@@ -262,16 +262,40 @@ func compareLastUpdate(left, right Anime) int {
 	return 0
 }
 
-// UpdateMAL gets the difference between the two anime lists and updates
-// the MyAnimeList. It adds the missing anime and updates the ones that need
-// updating based on the values of the Hummingbird list.
-func (s *AnimeService) UpdateMAL(diff Diff) error {
-	u := diff.NeedUpdate[0]
-	err := s.UpdateMALAnime(u)
-	if err != nil {
-		return err
+type Fail struct {
+	Anime Anime
+	Error error
+}
+
+// UpdateMAL gets the difference between the two anime lists and updates the
+// the ones that need updating to MyAnimeList based on the values of the
+// Hummingbird list.
+func (s *AnimeService) UpdateMAL(diff Diff) ([]Fail, error) {
+	var failure error
+	var updf []Fail
+	for _, d := range diff.NeedUpdate {
+		err := s.UpdateMALAnime(d)
+		if err != nil {
+			failure = fmt.Errorf("failed to update an entry")
+			updf = append(updf, Fail{Anime: d, Error: err})
+		}
 	}
-	return nil
+	return updf, failure
+}
+
+// AddMAL gets the difference between the two anime lists and adds the missing
+// anime to the MyAnimeList based on the values of the Hummingbird list.
+func (s *AnimeService) AddMAL(diff Diff) ([]Fail, error) {
+	var failure error
+	var addf []Fail
+	for _, d := range diff.Missing {
+		err := s.AddMALAnime(d)
+		if err != nil {
+			failure = fmt.Errorf("failed to add an entry")
+			addf = append(addf, Fail{Anime: d, Error: err})
+		}
+	}
+	return addf, failure
 }
 
 func (s *AnimeService) UpdateMALAnime(a Anime) error {
@@ -279,6 +303,17 @@ func (s *AnimeService) UpdateMALAnime(a Anime) error {
 	e := toMALEntry(a)
 	fmt.Printf("as mal entry %+v\n", e)
 	_, err := s.client.mal.Anime.Update(a.ID, e)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *AnimeService) AddMALAnime(a Anime) error {
+	fmt.Printf("adding anime %+v\n", a)
+	e := toMALEntry(a)
+	fmt.Printf("as mal entry %+v\n", e)
+	_, err := s.client.mal.Anime.Add(a.ID, e)
 	if err != nil {
 		return err
 	}
