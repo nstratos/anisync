@@ -3,6 +3,7 @@ package anisync
 import (
 	"fmt"
 	"log"
+	"math"
 	"sort"
 	"strconv"
 	"time"
@@ -48,37 +49,63 @@ func (s *AnimeService) ListMAL(username string) ([]Anime, error) {
 	if err != nil {
 		return nil, err
 	}
-	anime := fromListMAL(*list)
+	anime := fromMALEntries(*list)
 	sort.Sort(ByID(anime))
 	return anime, nil
 }
 
-func fromListMAL(malist mal.AnimeList) []Anime {
+func fromMALEntries(malist mal.AnimeList) []Anime {
 	var anime []Anime
 	for _, mala := range malist.Anime {
-		a := Anime{
-			ID:              mala.SeriesAnimeDBID,
-			Title:           mala.SeriesTitle,
-			EpisodesWatched: mala.MyWatchedEpisodes,
-			Status:          fromMALStatus(mala.MyStatus),
-		}
-		lastUpdated, err := fromMALMyLastUpdated(mala.MyLastUpdated)
-		if err != nil {
-			log.Println("Could not parse mal time:", err)
-		}
-		a.LastUpdated = lastUpdated
+		a := fromMALEntry(mala)
 		anime = append(anime, a)
 	}
 	return anime
 }
 
+func fromMALEntry(mala mal.Anime) Anime {
+	a := Anime{
+		ID:              mala.SeriesAnimeDBID,
+		Title:           mala.SeriesTitle,
+		EpisodesWatched: mala.MyWatchedEpisodes,
+		Status:          fromMALStatus(mala.MyStatus),
+		TimesRewatched:  mala.MyRewatchingEp,
+		//Notes:           mala.Comments, // MAL API does not send the comments.
+	}
+	// LastUpdated
+	lastUpdated, err := fromMALMyLastUpdated(mala.MyLastUpdated)
+	if err != nil {
+		log.Println("Could not parse mal time:", err)
+	}
+	a.LastUpdated = lastUpdated
+	// Rating
+	score := float64(mala.MyScore) / 2
+	a.Rating = fmt.Sprintf("%.1f", score)
+	// Rewatching
+	if mala.MyRewatching == "1" {
+		a.Rewatching = true
+	}
+	return a
+}
+
 func toMALEntry(a Anime) mal.AnimeEntry {
 	e := mal.AnimeEntry{
-		Episode: a.EpisodesWatched,
-		Status:  toMALStatus(a.Status),
+		Episode:        a.EpisodesWatched,
+		Status:         toMALStatus(a.Status),
+		Comments:       a.Notes,
+		TimesRewatched: a.TimesRewatched,
 	}
-	if a.EpisodesWatched == 0 {
-		e.Episode = -1
+	// rating
+	if a.Rating != "" {
+		f, err := strconv.ParseFloat(a.Rating, 64)
+		if err == nil {
+			f = math.Ceil(f * 2)
+			score := int(f)
+			e.Score = score
+		}
+	}
+	if a.Rewatching {
+		e.EnableRewatching = 1
 	}
 	return e
 }
@@ -102,29 +129,43 @@ func fromMALMyLastUpdated(updated string) (*time.Time, error) {
 }
 
 func (s *AnimeService) ListHB(username string) ([]Anime, error) {
-	list, _, err := s.client.hb.User.Library(username, "")
+	entries, _, err := s.client.hb.User.Library(username, "")
 	if err != nil {
 		return nil, err
 	}
-	anime := fromListHB(list)
+	anime := fromHBEntries(entries)
 	sort.Sort(ByID(anime))
 	return anime, nil
 
 }
 
-func fromListHB(list []hb.LibraryEntry) []Anime {
+func fromHBEntries(list []hb.LibraryEntry) []Anime {
 	var anime []Anime
-	for _, hba := range list {
-		a := Anime{
-			ID:              hba.Anime.MALID,
-			Title:           hba.Anime.Title,
-			EpisodesWatched: hba.EpisodesWatched,
-			Status:          hba.Status,
-			LastUpdated:     hba.UpdatedAt,
-		}
+	for _, hbe := range list {
+		a := fromHBEntry(hbe)
 		anime = append(anime, a)
 	}
 	return anime
+}
+
+func fromHBEntry(hbe hb.LibraryEntry) Anime {
+	a := Anime{
+		ID:              hbe.Anime.MALID,
+		Title:           hbe.Anime.Title,
+		EpisodesWatched: hbe.EpisodesWatched,
+		Status:          hbe.Status,
+		LastUpdated:     hbe.UpdatedAt,
+		Notes:           hbe.Notes,
+		TimesRewatched:  hbe.RewatchedTimes,
+		Rewatching:      hbe.Rewatching,
+	}
+	// rating
+	if hbe.Rating != nil {
+		if hbe.Rating.Type == "advanced" {
+			a.Rating = hbe.Rating.Value
+		}
+	}
+	return a
 }
 
 func FindByID(anime []Anime, id int) *Anime {
@@ -184,6 +225,10 @@ type Anime struct {
 	Title           string
 	EpisodesWatched int
 	LastUpdated     *time.Time
+	Rating          string
+	Notes           string
+	TimesRewatched  int
+	Rewatching      bool
 }
 
 type ByID []Anime
@@ -207,7 +252,7 @@ type Diff struct {
 	Left       []Anime
 	Right      []Anime
 	Missing    []Anime
-	NeedUpdate []Anime
+	NeedUpdate []AniDiff
 	UpToDate   []Anime
 }
 
@@ -220,19 +265,16 @@ func Compare(left, right []Anime) *Diff {
 	diff := &Diff{Left: left, Right: right}
 	var (
 		missing    []Anime
-		needUpdate []Anime
+		needUpdate []AniDiff
 		upToDate   []Anime
 	)
 	for _, a := range right {
 		found := FindByID(left, a.ID)
 		if found != nil {
-			c := compareLastUpdate(*found, a)
-			switch c {
-			case -1:
-				// update for mal
-				needUpdate = append(needUpdate, a)
-			case 0, 1:
-				// up to date, nothing to do
+			needsUpdate, diff := compare(*found, a)
+			if needsUpdate {
+				needUpdate = append(needUpdate, diff)
+			} else {
 				upToDate = append(upToDate, a)
 			}
 		} else {
@@ -243,6 +285,75 @@ func Compare(left, right []Anime) *Diff {
 	diff.NeedUpdate = needUpdate
 	diff.UpToDate = upToDate
 	return diff
+}
+
+type AniDiff struct {
+	Anime           Anime
+	Status          *Status
+	EpisodesWatched *EpisodesWatched
+	Rating          *Rating
+	Rewatching      *Rewatching
+	LastUpdated     *LastUpdated
+}
+
+type Status struct {
+	Got  string
+	Want string
+}
+
+type EpisodesWatched struct {
+	Got  int
+	Want int
+}
+
+type Rating struct {
+	Got  string
+	Want string
+}
+
+type Rewatching struct {
+	Got  bool
+	Want bool
+}
+
+type LastUpdated struct {
+	Got  time.Time
+	Want time.Time
+}
+
+func compare(left, right Anime) (bool, AniDiff) {
+	needsUpdate := false
+	diff := AniDiff{Anime: right}
+	if got, want := left.Status, right.Status; got != want {
+		diff.Status = &Status{got, want}
+		// fmt.Printf("->Status got %v, want %v\n", got, want)
+		needsUpdate = true
+	}
+	if got, want := left.EpisodesWatched, right.EpisodesWatched; got != want {
+		//fmt.Printf("->EpisodesWatched got %v, want %v\n", got, want)
+		diff.EpisodesWatched = &EpisodesWatched{got, want}
+		needsUpdate = true
+	}
+	if got, want := left.Rating, right.Rating; got != want {
+		//fmt.Printf("->Rating got %v, want %v\n", got, want)
+		diff.Rating = &Rating{got, want}
+		needsUpdate = true
+	}
+	if got, want := left.Rewatching, right.Rewatching; got != want {
+		//fmt.Printf("->Rewatching got %v, want %v\n", got, want)
+		diff.Rewatching = &Rewatching{got, want}
+		needsUpdate = true
+	}
+	// MAL API does not return comments so we cannot compare with notes.
+	// It does not return times rewatched either. The only thing we can do
+	// is compare the last updates. The problem is that MAL does not
+	// always change last update when a change happens.
+	c := compareLastUpdate(left, right)
+	if got, want := left.LastUpdated, right.LastUpdated; c == -1 {
+		diff.LastUpdated = &LastUpdated{*got, *want}
+		needsUpdate = true
+	}
+	return needsUpdate, diff
 }
 
 //
@@ -274,10 +385,10 @@ func (s *AnimeService) UpdateMAL(diff Diff) ([]Fail, error) {
 	var failure error
 	var updf []Fail
 	for _, d := range diff.NeedUpdate {
-		err := s.UpdateMALAnime(d)
+		err := s.UpdateMALAnime(d.Anime)
 		if err != nil {
 			failure = fmt.Errorf("failed to update an entry")
-			updf = append(updf, Fail{Anime: d, Error: err})
+			updf = append(updf, Fail{Anime: d.Anime, Error: err})
 		}
 	}
 	return updf, failure
@@ -299,9 +410,8 @@ func (s *AnimeService) AddMAL(diff Diff) ([]Fail, error) {
 }
 
 func (s *AnimeService) UpdateMALAnime(a Anime) error {
-	fmt.Printf("updating anime %+v\n", a)
 	e := toMALEntry(a)
-	fmt.Printf("as mal entry %+v\n", e)
+	printAnimeUpdate(a, "updating")
 	_, err := s.client.mal.Anime.Update(a.ID, e)
 	if err != nil {
 		return err
@@ -310,12 +420,22 @@ func (s *AnimeService) UpdateMALAnime(a Anime) error {
 }
 
 func (s *AnimeService) AddMALAnime(a Anime) error {
-	fmt.Printf("adding anime %+v\n", a)
 	e := toMALEntry(a)
-	fmt.Printf("as mal entry %+v\n", e)
+	printAnimeUpdate(a, "adding")
 	_, err := s.client.mal.Anime.Add(a.ID, e)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func printAnimeUpdate(a Anime, op string) {
+	fmt.Printf("%v %7v \t%v ", op, a.ID, a.Title)
+	fmt.Printf("with values (")
+	fmt.Printf("Status: %v, ", a.Status)
+	fmt.Printf("EpisodesWatched: %v, ", a.EpisodesWatched)
+	fmt.Printf("Rating: %v, ", a.Rating)
+	fmt.Printf("Rewatching: %v, ", a.Rewatching)
+	fmt.Printf("TimesRewatched: %v, ", a.TimesRewatched)
+	fmt.Printf("Notes: %v)\n", a.Notes)
 }

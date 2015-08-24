@@ -111,7 +111,7 @@ func run() error {
 	printDiffReport(*diff)
 
 	if len(diff.Missing) == 0 && len(diff.NeedUpdate) == 0 {
-		fmt.Println("Your MyAnimeList is up to date with your Hummingbird list.")
+		fmt.Println("No anime need to be added or updated in your MyAnimeList.")
 		return nil
 
 	}
@@ -159,22 +159,38 @@ func run() error {
 }
 
 func printDiffReport(diff anisync.Diff) {
-	fmt.Println("Missing:")
+	for _, u := range diff.UpToDate {
+		fmt.Printf(">>> %7v \t%v\n", u.ID, u.Title)
+	}
 	for _, m := range diff.Missing {
 		fmt.Printf("--- %7v \t%v\n", m.ID, m.Title)
 	}
-	fmt.Println("Need update:")
 	for _, u := range diff.NeedUpdate {
-		fmt.Printf("<<< %7v \t%v\n", u.ID, u.Title)
-	}
-	fmt.Println("Up to date:")
-	for _, u := range diff.UpToDate {
-		fmt.Printf(">>> %7v \t%v\n", u.ID, u.Title)
+		fmt.Printf("<<< %7v \t%v\n", u.Anime.ID, u.Anime.Title)
+		printAniDiff(u)
 	}
 	fmt.Println()
 	fmt.Printf("Hummingbird entries: %v\n", len(diff.Right))
 	fmt.Printf("MyAnimelist entries: %v\n", len(diff.Left))
+	fmt.Printf("Up to date: %v\n", len(diff.UpToDate))
 	fmt.Printf("Missing: %v\n", len(diff.Missing))
 	fmt.Printf("Need update: %v\n", len(diff.NeedUpdate))
-	fmt.Printf("Up to date: %v\n", len(diff.UpToDate))
+}
+
+func printAniDiff(d anisync.AniDiff) {
+	if d.Status != nil {
+		fmt.Printf("    Status: got %v, want %v\n", d.Status.Got, d.Status.Want)
+	}
+	if d.EpisodesWatched != nil {
+		fmt.Printf("    EpisodesWatched: got %v, want %v\n", d.EpisodesWatched.Got, d.EpisodesWatched.Want)
+	}
+	if d.Rating != nil {
+		fmt.Printf("    Rating: got %v, want %v\n", d.Rating.Got, d.Rating.Want)
+	}
+	if d.Rewatching != nil {
+		fmt.Printf("    Rewatching: got %v, want %v\n", d.Rewatching.Got, d.Rewatching.Want)
+	}
+	if d.LastUpdated != nil {
+		fmt.Printf("    LastUpdated: got %v, want %v\n", d.LastUpdated.Got.Local(), d.LastUpdated.Want.Local())
+	}
 }
