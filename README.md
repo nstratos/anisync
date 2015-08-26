@@ -1,3 +1,4 @@
 ## anisync
 
-A tool to help you keep your anime lists in sync.
+A tool to help you keep your MyAnimeList in sync with your Hummingbird anime 
+list.
