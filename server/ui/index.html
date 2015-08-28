@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sync your Hummingbird list back to your MyAnimeList.">
+
+  <title>Anisync</title>
+
+  <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+  <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+  <!--<![endif]-->
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body>
+
+  <div class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+      <div class="header">
+        <h1 class="brand-title">Anisync</h1>
+        <h2 class="brand-tagline">Sync your Hummingbird list back to your MyAnimeList.</h2>
+
+        <form class="pure-form pure-form-stacked">
+          <fieldset>
+            <input type="text" title="Your Hummingbird.me username" placeholder="HB username"
+            class="sidebar-input pure-input-1 sidebar-input-danger">
+            <input type="text" title="Your MyAnimeList.net username" placeholder="MAL username"
+            class="sidebar-input pure-input-1 sidebar-input-success">
+            <input type="password" title="Your MyAnimeList.net password" placeholder="MAL Password"
+            class="sidebar-input pure-input-1">
+
+            <div class="pure-controls">
+              <button type="button" class="pure-button sidebar-button">Check</button>
+              <button type="button" class="pure-button sidebar-button">Sync</button>
+            </div>
+
+          </fieldset>
+        </form>
+      </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+      <div class="pure-u-1">
+        <div class="posts">
+          <h1 class="content-subhead">Check results</h1>
+          <table class="pure-table">
+
+            <tbody class="pure-u-1">
+              <tr class="pure-table-odd">
+                <td>Hummingbird Entries</td>
+                <td>120</td>
+              </tr>
+
+              <tr>
+                <td>MyAnimeList Entries</td>
+                <td>110</td>
+              </tr>
+
+              <tr class="pure-table-odd">
+                <td>Missing</td>
+                <td>10</td>
+              </tr>
+
+              <tr>
+                <td>Need Update</td>
+                <td>100</td>
+              </tr>
+
+              <tr class="pure-table-odd">
+                <td>Up to Date</td>
+                <td>10</td>
+              </tr>
+
+            </tbody>
+          </table>
+          <p>
+            <a href="#">Your MyAnimeList</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+</html>
