@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" ng-app="anisyncApp">
 
 <head>
   <meta charset="utf-8">
@@ -26,18 +26,18 @@
         <h1 class="brand-title">Anisync</h1>
         <h2 class="brand-tagline">Sync your Hummingbird list back to your MyAnimeList.</h2>
 
-        <form class="pure-form pure-form-stacked">
+        <form class="pure-form pure-form-stacked" ng-controller="AnisyncCtrl">
           <fieldset>
-            <input type="text" title="Your Hummingbird.me username" placeholder="HB username"
-            class="sidebar-input pure-input-1 sidebar-input-danger">
-            <input type="text" title="Your MyAnimeList.net username" placeholder="MAL username"
-            class="sidebar-input pure-input-1 sidebar-input-success">
-            <input type="password" title="Your MyAnimeList.net password" placeholder="MAL Password"
+            <input type="text" ng-model="req.hbUsername" title="Your Hummingbird.me username" placeholder="HB username"
+            class="sidebar-input pure-input-1 sidebar-input-danger" required>
+            <input type="text" ng-model="req.malUsername" title="Your MyAnimeList.net username" placeholder="MAL username"
+            class="sidebar-input pure-input-1 sidebar-input-success" required>
+            <input type="password" ng-model="req.malPassword" title="Your MyAnimeList.net password" placeholder="MAL Password"
             class="sidebar-input pure-input-1">
 
             <div class="pure-controls">
-              <button type="button" class="pure-button sidebar-button">Check</button>
-              <button type="button" class="pure-button sidebar-button">Sync</button>
+              <button type="button" ng-click="check(req)" class="pure-button sidebar-button">Check</button>
+              <button type="button" ng-click="sync(req)" class="pure-button sidebar-button">Sync</button>
             </div>
 
           </fieldset>
@@ -49,6 +49,7 @@
       <div class="pure-u-1">
         <div class="posts">
           <h1 class="content-subhead">Check results</h1>
+          <p>Nothing here {{'yet' +'!'}}</p>
           <table class="pure-table">
 
             <tbody class="pure-u-1">
@@ -88,6 +89,11 @@
   </div>
 
 
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-resource.min.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/controllers.js"></script>
+  <script src="assets/js/services.js"></script>
 </body>
 
 </html>
