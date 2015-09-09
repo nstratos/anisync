@@ -6,15 +6,13 @@ anisyncServices.factory('Anisync', ['$resource',
       Check: $resource('api/check', {}, {
         query: {
           method: 'GET',
-          params: {},
-          isArray: true
+          params: {}
         }
       }),
       Sync: $resource('api/sync', {}, {
         query: {
           method: 'POST',
-          params: {},
-          isArray: true
+          params: {}
         }
       })
     }

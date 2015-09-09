@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="assets/css/main.css">
 </head>
 
-<body>
+<body ng-controller="AnisyncCtrl">
 
   <div class="pure-g">
     <div class="sidebar pure-u-1 pure-u-md-1-4">
@@ -26,12 +26,12 @@
         <h1 class="brand-title">Anisync</h1>
         <h2 class="brand-tagline">Sync your Hummingbird list back to your MyAnimeList.</h2>
 
-        <form class="pure-form pure-form-stacked" ng-controller="AnisyncCtrl">
+        <form class="pure-form pure-form-stacked" >
           <fieldset>
             <input type="text" ng-model="req.hbUsername" title="Your Hummingbird.me username" placeholder="HB username"
-            class="sidebar-input pure-input-1 sidebar-input-danger" required>
+            class="sidebar-input pure-input-1 sidebar-input-danger" value="nesigma" required>
             <input type="text" ng-model="req.malUsername" title="Your MyAnimeList.net username" placeholder="MAL username"
-            class="sidebar-input pure-input-1 sidebar-input-success" required>
+            class="sidebar-input pure-input-1 sidebar-input-success" value="nesigma" required>
             <input type="password" ng-model="req.malPassword" title="Your MyAnimeList.net password" placeholder="MAL Password"
             class="sidebar-input pure-input-1">
 
@@ -48,38 +48,24 @@
     <div class="content pure-u-1 pure-u-md-3-4">
       <div class="pure-u-1">
         <div class="posts">
-          <h1 class="content-subhead">Check results</h1>
-          <p>Nothing here {{'yet' +'!'}}</p>
-          <table class="pure-table">
-
-            <tbody class="pure-u-1">
-              <tr class="pure-table-odd">
-                <td>Hummingbird Entries</td>
-                <td>120</td>
-              </tr>
-
-              <tr>
-                <td>MyAnimeList Entries</td>
-                <td>110</td>
-              </tr>
-
-              <tr class="pure-table-odd">
-                <td>Missing</td>
-                <td>10</td>
-              </tr>
-
-              <tr>
-                <td>Need Update</td>
-                <td>100</td>
-              </tr>
-
-              <tr class="pure-table-odd">
-                <td>Up to Date</td>
-                <td>10</td>
-              </tr>
-
-            </tbody>
-          </table>
+          <h1 ng-if="checkResp" class="content-subhead">Check results</h1>
+          <h2 ng-if="checkResp.NeedUpdate">Need Update</h2>
+	  <ul>
+		  <li ng-repeat="d in checkResp.NeedUpdate">
+		  <h4>{{d.Anime.Title}}</h4>
+		  <p>{{d.Anime.Status}}<p>
+		  <p ng-if="d.Status">Status: {{d.Status.Got}} &rarr; {{d.Status.Want}}</p>
+		  <p ng-if="d.EpisodesWatched">Episodes Watched: {{d.EpisodesWatched.Got}} &rarr; {{d.EpisodesWatched.Want}}</p>
+		  <p ng-if="d.Rating">Rating: {{d.Rating.Got}} &rarr; {{d.Rating.Want}}</p>
+		  <p ng-if="d.Rewatching">Rewatching: {{d.Rewatching.Got}} &rarr; {{d.Rewatching.Want}}</p>
+		  <p ng-if="d.LastUpdated">LastUpdated: {{d.LastUpdated.Got}} &rarr; {{d.LastUpdated.Want}}</p>
+		  </li>
+		  
+	  </ul>
+          <h2 ng-if="checkResp.UpToDate">Up to Date</h2>
+	  <ul>
+		  <li ng-repeat="d in checkResp.UpToDate">{{d.Title}}</li>
+	  </ul>
           <p>
             <a href="#">Your MyAnimeList</a>
           </p>

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net/http"
 	"sort"
 	"strconv"
 	"time"
@@ -44,14 +45,14 @@ type AnimeService struct {
 	client *Client
 }
 
-func (s *AnimeService) ListMAL(username string) ([]Anime, error) {
-	list, _, err := s.client.mal.Anime.List(username)
+func (s *AnimeService) ListMAL(username string) ([]Anime, *http.Response, error) {
+	list, resp, err := s.client.mal.Anime.List(username)
 	if err != nil {
-		return nil, err
+		return nil, resp.Response, err
 	}
 	anime := fromMALEntries(*list)
 	sort.Sort(ByID(anime))
-	return anime, nil
+	return anime, resp.Response, nil
 }
 
 func fromMALEntries(malist mal.AnimeList) []Anime {
@@ -128,14 +129,14 @@ func fromMALMyLastUpdated(updated string) (*time.Time, error) {
 	return &t, nil
 }
 
-func (s *AnimeService) ListHB(username string) ([]Anime, error) {
-	entries, _, err := s.client.hb.User.Library(username, "")
+func (s *AnimeService) ListHB(username string) ([]Anime, *http.Response, error) {
+	entries, resp, err := s.client.hb.User.Library(username, "")
 	if err != nil {
-		return nil, err
+		return nil, resp, err
 	}
 	anime := fromHBEntries(entries)
 	sort.Sort(ByID(anime))
-	return anime, nil
+	return anime, resp, nil
 
 }
 
