@@ -11,6 +11,35 @@ a:hover,
 a:focus {
   text-decoration: underline;
 }
+img.resize {
+  width: 300px;
+  height: auto;
+}
+img.responsive {
+  width: 100%;
+  height: auto;
+  border-radius: 3px
+}
+img.thumb {
+  max-width: 100px;
+  max-height: auto;
+  border-radius: 3px;
+}
+.thumb-wrapper {
+  float: left;
+}
+ul li {
+  list-style-type: none;
+}
+.result {
+  background-color: #eee;
+  border-radius: 3px;
+  padding: 10px;
+  min-height: 170px;
+}
+.result-title {
+	text-align: center;
+}
 input.sidebar-input {
   border: none!important;
   background-color: transparent!important;

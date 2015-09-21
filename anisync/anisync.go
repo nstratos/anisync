@@ -71,6 +71,7 @@ func fromMALEntry(mala mal.Anime) Anime {
 		EpisodesWatched: mala.MyWatchedEpisodes,
 		Status:          fromMALStatus(mala.MyStatus),
 		TimesRewatched:  mala.MyRewatchingEp,
+		Image:           mala.SeriesImage,
 		//Notes:           mala.Comments, // MAL API does not send the comments.
 	}
 	// LastUpdated
@@ -159,6 +160,7 @@ func fromHBEntry(hbe hb.LibraryEntry) Anime {
 		Notes:           hbe.Notes,
 		TimesRewatched:  hbe.RewatchedTimes,
 		Rewatching:      hbe.Rewatching,
+		Image:           hbe.Anime.CoverImage,
 	}
 	// rating
 	if hbe.Rating != nil {
@@ -230,6 +232,7 @@ type Anime struct {
 	Notes           string
 	TimesRewatched  int
 	Rewatching      bool
+	Image           string
 }
 
 type ByID []Anime
