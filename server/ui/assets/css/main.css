@@ -28,8 +28,15 @@ img.thumb {
 .thumb-wrapper {
   float: left;
 }
+ul {
+  padding-left: 0;
+}
 ul li {
   list-style-type: none;
+}
+.results h1,
+h2 {
+  text-align: center;
 }
 .result {
   background-color: #eee;
@@ -38,7 +45,24 @@ ul li {
   min-height: 170px;
 }
 .result-title {
-	text-align: center;
+  font-size: 1.5em;
+  color: #222;
+  margin-bottom: 0.2em;
+  margin-top: 0.2em;
+}
+.tag {
+  margin: 0 0.1em;
+  padding: 0.3em 1em;
+  color: #fff;
+  background: #999;
+  font-size: 80%;
+  float: right;
+}
+.tag-danger {
+  background: #D2567E;
+}
+.tag-success {
+  background: #91D357;
 }
 input.sidebar-input {
   border: none!important;

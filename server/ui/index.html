@@ -51,28 +51,46 @@
       <div class="pure-u-1">
         <div class="results">
           <h1 ng-if="checkResp" class="content-subhead">Check results</h1>
-          <h2 ng-if="checkResp.NeedUpdate">Need Update</h2>
           <ul>
             <li ng-repeat="d in checkResp.NeedUpdate">
               <div class="result">
-                <h4 class="result-title">{{d.Anime.Title}}</h4>
-                <div class="thumb-wrapper">
+                <span class="tag tag-danger">Need Update</span>
+                <div class="pure-g">
+                  <div class="thumb-wrapper pure-u-1-5">
                     <img ng-src="{{d.Anime.Image}}" class="thumb" alt="{{d.Anime.Title}} image">
-                </div>
-                <div class="">
-                  <p ng-if="d.Status">Status: {{d.Status.Got}} &rarr; {{d.Status.Want}}</p>
-                  <p ng-if="d.EpisodesWatched">Episodes Watched: {{d.EpisodesWatched.Got}} &rarr; {{d.EpisodesWatched.Want}}</p>
-                  <p ng-if="d.Rating">Rating: {{d.Rating.Got}} &rarr; {{d.Rating.Want}}</p>
-                  <p ng-if="d.Rewatching">Rewatching: {{d.Rewatching.Got}} &rarr; {{d.Rewatching.Want}}</p>
-                  <p ng-if="d.LastUpdated">LastUpdated: {{d.LastUpdated.Got}} &rarr; {{d.LastUpdated.Want}}</p>
+                  </div>
+                  <div class="pure-u-4-5">
+                    <h4 class="result-title">{{d.Anime.Title}}</h4>
+                    <p ng-if="d.Status">Status: {{d.Status.Got}} &rarr; {{d.Status.Want}}</p>
+                    <p ng-if="d.EpisodesWatched">Episodes Watched: {{d.EpisodesWatched.Got}} &rarr; {{d.EpisodesWatched.Want}}</p>
+                    <p ng-if="d.Rating">Rating: {{d.Rating.Got}} &rarr; {{d.Rating.Want}}</p>
+                    <p ng-if="d.Rewatching">Rewatching: {{d.Rewatching.Got}} &rarr; {{d.Rewatching.Want}}</p>
+                    <p ng-if="d.LastUpdated">LastUpdated: {{d.LastUpdated.Got}} &rarr; {{d.LastUpdated.Want}}</p>
+                  </div>
                 </div>
               </div>
             </li>
 
           </ul>
-          <h2 ng-if="checkResp.UpToDate">Up to Date</h2>
           <ul>
-            <li ng-repeat="d in checkResp.UpToDate">{{d.Title}}</li>
+            <li ng-repeat="d in checkResp.UpToDate">
+              <div class="result">
+                <span class="tag tag-success">Up to Date</span>
+                <div class="pure-g">
+                  <div class="thumb-wrapper pure-u-1-5">
+                    <img ng-src="{{d.Image}}" class="thumb" alt="{{d.Title}} image">
+                  </div>
+                  <div class="pure-u-4-5">
+                    <h4 class="result-title">{{d.Title}}</h4>
+                    <p>Status: {{d.Status}}</p>
+                    <p>Episodes Watched: {{d.EpisodesWatched}}</p>
+                    <p>Rating: {{d.Rating}}</p>
+                    <p>Rewatching: {{d.Rewatching}}</p>
+                    <p>LastUpdated: {{d.LastUpdated}}</p>
+                  </div>
+                </div>
+              </div>
+            </li>
           </ul>
           <p>
             <a href="#">Your MyAnimeList</a>
