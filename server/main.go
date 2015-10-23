@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"bitbucket.org/nstratos/anisync/anisync"
+	"bitbucket.org/nstratos/anisync/onepic"
 )
 
 //go:generate go run generate/includeagent.go
@@ -30,6 +33,8 @@ func main() {
 	// API handlers
 	http.Handle("/api/check", appHandler((check)))
 	http.Handle("/api/sync", appHandler((sync)))
+	http.Handle("/api/test/check", appHandler((testCheck)))
+	http.Handle("/api/getoneimg", appHandler((getOneImg)))
 
 	fmt.Println("Starting server at :" + *port)
 	if err := http.ListenAndServe(":"+*port, nil); err != nil {
@@ -77,6 +82,76 @@ func check(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+func getOneImgURL(q string) string {
+	return fmt.Sprintf("api/getoneimg?q=%v", url.QueryEscape(q))
+}
+
+func getOneImg(w http.ResponseWriter, r *http.Request) error {
+	q := r.FormValue("q")
+	url, err := onepic.Search(q)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("url: %v\n", url)
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	w.Header().Set("Content-Length", fmt.Sprint(resp.ContentLength))
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	if _, err = io.Copy(w, resp.Body); err != nil {
+		return err
+	}
+	resp.Body.Close()
+	return nil
+}
+
+func testCheck(w http.ResponseWriter, r *http.Request) error {
+	now := time.Now()
+	malist := []anisync.Anime{
+		{
+			ID:          1,
+			Title:       "Death parade",
+			Rating:      "4.0",
+			Image:       getOneImgURL("Death parade"),
+			LastUpdated: &now,
+		},
+		{
+			ID:          2,
+			Title:       "Ore monogatari",
+			Rating:      "3.0",
+			Image:       getOneImgURL("ore monogatari"),
+			LastUpdated: &now,
+		},
+	}
+	hblist := []anisync.Anime{
+		{
+			ID:          1,
+			Title:       "Death parade",
+			Rating:      "5.0",
+			Image:       getOneImgURL("Death parade"),
+			LastUpdated: &now,
+		},
+		{
+			ID:          2,
+			Title:       "Ore monogatari",
+			Rating:      "4.0",
+			Image:       getOneImgURL("ore monogatari"),
+			LastUpdated: &now,
+		},
+	}
+
+	diff := anisync.Compare(malist, hblist)
+
+	bytes, err := json.Marshal(diff)
+	if err != nil {
+		return &appErr{err, "could not marshal diff", http.StatusInternalServerError}
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(bytes)
+	return nil
+}
 func sync(w http.ResponseWriter, r *http.Request) error {
 	return &appErr{nil, "wip", http.StatusNotImplemented}
 }
