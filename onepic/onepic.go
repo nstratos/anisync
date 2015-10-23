@@ -1,3 +1,5 @@
+// Package onepic uses Google image search API to bring back a single picture
+// based on a query.
 package onepic
 
 import (
@@ -7,6 +9,8 @@ import (
 	"net/url"
 )
 
+// Search uses Google image search API to search for a small image based on a
+// query and returns the URL of that image.
 func Search(q string) (string, error) {
 	apiURL := "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&imgsz=small&rsz=1&q=%v"
 
@@ -27,6 +31,5 @@ func Search(q string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("%+v\n", re)
 	return re.ResponseData.Results[0].URL, nil
 }
