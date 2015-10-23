@@ -275,6 +275,7 @@ func Compare(left, right []Anime) *Diff {
 	for _, a := range right {
 		found := FindByID(left, a.ID)
 		if found != nil {
+			//fmt.Printf("found: %+v\n", found)
 			needsUpdate, diff := compare(*found, a)
 			if needsUpdate {
 				needUpdate = append(needUpdate, diff)
@@ -348,14 +349,16 @@ func compare(left, right Anime) (bool, AniDiff) {
 		diff.Rewatching = &Rewatching{got, want}
 		needsUpdate = true
 	}
-	// MAL API does not return comments so we cannot compare with notes.
-	// It does not return times rewatched either. The only thing we can do
-	// is compare the last updates. The problem is that MAL does not
-	// always change last update when a change happens.
-	c := compareLastUpdate(left, right)
-	if got, want := left.LastUpdated, right.LastUpdated; c == -1 {
-		diff.LastUpdated = &LastUpdated{*got, *want}
-		needsUpdate = true
+	if left.LastUpdated != nil && right.LastUpdated != nil {
+		// MAL API does not return comments so we cannot compare with notes.
+		// It does not return times rewatched either. The only thing we can do
+		// is compare the last updates. The problem is that MAL does not
+		// always change last update when a change happens.
+		c := compareLastUpdate(left, right)
+		if got, want := left.LastUpdated, right.LastUpdated; c == -1 {
+			diff.LastUpdated = &LastUpdated{*got, *want}
+			needsUpdate = true
+		}
 	}
 	return needsUpdate, diff
 }
