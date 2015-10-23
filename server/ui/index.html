@@ -61,11 +61,51 @@
                   </div>
                   <div class="pure-u-4-5">
                     <h4 class="result-title">{{d.Anime.Title}}</h4>
+                    <table class="pure-table pure-table-horizontal">
+                      <!-- <thead>
+                        <tr>
+                          <th></th>
+                          <th>Prev Value</th>
+                          <th>New Value</th>
+                        </tr>
+                      </thead> -->
+                      <tbody>
+                        <tr ng-if="d.Status">
+                          <td>Status</td>
+                          <td>{{d.Status.Got}}</td>
+                          <td>
+                            <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
+                          </td>
+                          <td>{{d.Status.Want}}</td>
+                        </tr>
+                        <tr ng-if="d.Rating">
+                          <td>Rating</td>
+                          <td>{{d.Rating.Got}}</td>
+                          <td>
+                            <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
+                          </td>
+                          <td>{{d.Rating.Want}}</td>
+                        </tr>
+                        <tr ng-if="d.LastUpdated">
+                          <td>LastUpdated</td>
+                          <td>{{d.LastUpdated.Got}}</td>
+                          <td>
+                            <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
+                          </td>
+                          <td>{{d.LastUpdated.Want}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                     <p ng-if="d.Status">Status: {{d.Status.Got}} &rarr; {{d.Status.Want}}</p>
                     <p ng-if="d.EpisodesWatched">Episodes Watched: {{d.EpisodesWatched.Got}} &rarr; {{d.EpisodesWatched.Want}}</p>
-                    <p ng-if="d.Rating">Rating: {{d.Rating.Got}} &rarr; {{d.Rating.Want}}</p>
+                    <p ng-if="d.Rating">
+                      <ng-md-icon icon="grade" size="17"></ng-md-icon>{{d.Rating.Got}}
+                      <ng-md-icon icon="trending_neutral" size="17"></ng-md-icon>
+                      {{d.Rating.Want}}
+                    </p>
                     <p ng-if="d.Rewatching">Rewatching: {{d.Rewatching.Got}} &rarr; {{d.Rewatching.Want}}</p>
-                    <p ng-if="d.LastUpdated">LastUpdated: {{d.LastUpdated.Got}} &rarr; {{d.LastUpdated.Want}}</p>
+                    <p ng-if="d.LastUpdated">Updated: {{d.LastUpdated.Got | date:'medium'}}
+                      <ng-md-icon icon="trending_neutral" size="17"></ng-md-icon>{{d.LastUpdated.Want | date:'medium'}}</p>
                   </div>
                 </div>
               </div>
@@ -84,9 +124,11 @@
                     <h4 class="result-title">{{d.Title}}</h4>
                     <p>Status: {{d.Status}}</p>
                     <p>Episodes Watched: {{d.EpisodesWatched}}</p>
-                    <p>Rating: {{d.Rating}}</p>
+                    <p>
+                      <span><ng-md-icon icon="grade" size="17"></ng-md-icon><span>{{d.Rating}}</span></span>
+                    </p>
                     <p>Rewatching: {{d.Rewatching}}</p>
-                    <p>LastUpdated: {{d.LastUpdated}}</p>
+                    <p>LastUpdated: {{d.LastUpdated | date:'medium'}}</p>
                   </div>
                 </div>
               </div>
@@ -103,6 +145,7 @@
 
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-resource.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-material-icons/0.6.0/angular-material-icons.min.js"></script>
   <script src="assets/js/app.js"></script>
   <script src="assets/js/controllers.js"></script>
   <script src="assets/js/services.js"></script>

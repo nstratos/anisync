@@ -3,7 +3,7 @@ var anisyncServices = angular.module('anisyncServices', ['ngResource']);
 anisyncServices.factory('Anisync', ['$resource',
   function($resource) {
     return {
-      Check: $resource('api/check', {}, {
+      Check: $resource('api/test/check', {}, {
         query: {
           method: 'GET',
           params: {}
