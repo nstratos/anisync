@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"time"
 
 	"bitbucket.org/nstratos/anisync/anisync"
@@ -34,7 +32,6 @@ func main() {
 	http.Handle("/api/check", appHandler((check)))
 	http.Handle("/api/sync", appHandler((sync)))
 	http.Handle("/api/test/check", appHandler((testCheck)))
-	http.Handle("/api/getoneimg", appHandler((getOneImg)))
 
 	fmt.Println("Starting server at :" + *port)
 	if err := http.ListenAndServe(":"+*port, nil); err != nil {
@@ -82,61 +79,47 @@ func check(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func getOneImgURL(q string) string {
-	return fmt.Sprintf("api/getoneimg?q=%v", url.QueryEscape(q))
-}
-
-func getOneImg(w http.ResponseWriter, r *http.Request) error {
-	q := r.FormValue("q")
-	url, err := onepic.Search(q)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("url: %v\n", url)
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	w.Header().Set("Content-Length", fmt.Sprint(resp.ContentLength))
-	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-	if _, err = io.Copy(w, resp.Body); err != nil {
-		return err
-	}
-	resp.Body.Close()
-	return nil
-}
-
 func testCheck(w http.ResponseWriter, r *http.Request) error {
 	now := time.Now()
+	anime1 := "Death parade"
+	anime1Pic, err := onepic.Search(anime1)
+	if err != nil {
+		return err
+	}
+	anime2 := "Ore monogatari"
+	anime2Pic, err := onepic.Search(anime2)
+	if err != nil {
+		return err
+	}
 	malist := []anisync.Anime{
 		{
 			ID:          1,
-			Title:       "Death parade",
+			Title:       anime1,
 			Rating:      "4.0",
-			Image:       getOneImgURL("Death parade"),
+			Image:       anime1Pic,
 			LastUpdated: &now,
 		},
 		{
 			ID:          2,
-			Title:       "Ore monogatari",
+			Title:       anime2,
 			Rating:      "3.0",
-			Image:       getOneImgURL("ore monogatari"),
+			Image:       anime2Pic,
 			LastUpdated: &now,
 		},
 	}
 	hblist := []anisync.Anime{
 		{
 			ID:          1,
-			Title:       "Death parade",
+			Title:       anime1,
 			Rating:      "5.0",
-			Image:       getOneImgURL("Death parade"),
+			Image:       anime1Pic,
 			LastUpdated: &now,
 		},
 		{
 			ID:          2,
-			Title:       "Ore monogatari",
+			Title:       anime2,
 			Rating:      "4.0",
-			Image:       getOneImgURL("ore monogatari"),
+			Image:       anime2Pic,
 			LastUpdated: &now,
 		},
 	}
