@@ -81,6 +81,7 @@ func check(w http.ResponseWriter, r *http.Request) error {
 
 func testCheck(w http.ResponseWriter, r *http.Request) error {
 	now := time.Now()
+	before := now.AddDate(0, 0, -1)
 	anime1 := "Death parade"
 	anime1Pic, err := onepic.Search(anime1)
 	if err != nil {
@@ -88,6 +89,11 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 	}
 	anime2 := "Ore monogatari"
 	anime2Pic, err := onepic.Search(anime2)
+	if err != nil {
+		return err
+	}
+	anime3 := "Shingeki no Kyojin"
+	anime3Pic, err := onepic.Search(anime3)
 	if err != nil {
 		return err
 	}
@@ -104,7 +110,16 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 			Title:       anime2,
 			Rating:      "3.0",
 			Image:       anime2Pic,
-			LastUpdated: &now,
+			LastUpdated: &before,
+		},
+		{
+			ID:              3,
+			Title:           anime3,
+			Rating:          "3.5",
+			Image:           anime3Pic,
+			LastUpdated:     &before,
+			EpisodesWatched: 5,
+			Rewatching:      false,
 		},
 	}
 	hblist := []anisync.Anime{
@@ -121,6 +136,15 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 			Rating:      "4.0",
 			Image:       anime2Pic,
 			LastUpdated: &now,
+		},
+		{
+			ID:              3,
+			Title:           anime3,
+			Rating:          "2.5",
+			Image:           anime3Pic,
+			LastUpdated:     &now,
+			EpisodesWatched: 10,
+			Rewatching:      true,
 		},
 	}
 

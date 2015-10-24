@@ -54,58 +54,69 @@
           <ul>
             <li ng-repeat="d in checkResp.NeedUpdate">
               <div class="result">
-                <span class="tag tag-danger">Need Update</span>
                 <div class="pure-g">
                   <div class="thumb-wrapper pure-u-1-5">
                     <img ng-src="{{d.Anime.Image}}" class="thumb" alt="{{d.Anime.Title}} image">
                   </div>
                   <div class="pure-u-4-5">
+                    <span class="tag tag-danger">Need Update</span>
                     <h4 class="result-title">{{d.Anime.Title}}</h4>
                     <table class="pure-table pure-table-horizontal">
-                      <!-- <thead>
+                      <thead>
                         <tr>
-                          <th></th>
-                          <th>Prev Value</th>
-                          <th>New Value</th>
+                          <th class="row-name"></th>
+                          <th class="row-value">
+                            <img class="row-icon" src="assets/img/myanimelist_icon.png" alt="myanimelist_icon">
+                          </th>
+                          <th class="row-arrow"></th>
+                          <th class="row-value">
+                            <img class="row-icon" src="assets/img/hummingbird_icon.png" alt="hummingbird_icon">
+                          </th>
                         </tr>
-                      </thead> -->
+                      </thead>
                       <tbody>
                         <tr ng-if="d.Status">
-                          <td>Status</td>
-                          <td>{{d.Status.Got}}</td>
-                          <td>
+                          <td class="row-name">Status</td>
+                          <td class="row-value">{{d.Status.Got}}</td>
+                          <td class="row-arrow">
                             <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
                           </td>
-                          <td>{{d.Status.Want}}</td>
+                          <td class="row-value">{{d.Status.Want}}</td>
                         </tr>
                         <tr ng-if="d.Rating">
-                          <td>Rating</td>
-                          <td>{{d.Rating.Got}}</td>
-                          <td>
+                          <td class="row-name">Rating</td>
+                          <td class="row-value">{{d.Rating.Got}}</td>
+                          <td class="row-arrow">
                             <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
                           </td>
-                          <td>{{d.Rating.Want}}</td>
+                          <td class="row-value">{{d.Rating.Want}}</td>
+                        </tr>
+                        <tr ng-if="d.EpisodesWatched">
+                          <td class="row-name">Ep. Watched</td>
+                          <td class="row-value">{{d.EpisodesWatched.Got}}</td>
+                          <td class="row-arrow">
+                            <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
+                          </td>
+                          <td class="row-value">{{d.EpisodesWatched.Want}}</td>
                         </tr>
                         <tr ng-if="d.LastUpdated">
-                          <td>LastUpdated</td>
-                          <td>{{d.LastUpdated.Got}}</td>
-                          <td>
+                          <td class="row-name">Updated</td>
+                          <td class="row-value">{{d.LastUpdated.Got | date:'medium'}}</td>
+                          <td class="row-arrow">
                             <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
                           </td>
-                          <td>{{d.LastUpdated.Want}}</td>
+                          <td class="row-value">{{d.LastUpdated.Want | date:'medium'}}</td>
+                        </tr>
+                        <tr ng-if="d.Rewatching">
+                          <td class="row-name">Rewatching</td>
+                          <td class="row-value">{{d.Rewatching.Got}}</td>
+                          <td class="row-arrow">
+                            <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
+                          </td>
+                          <td class="row-value">{{d.Rewatching.Want}}</td>
                         </tr>
                       </tbody>
                     </table>
-                    <p ng-if="d.Status">Status: {{d.Status.Got}} &rarr; {{d.Status.Want}}</p>
-                    <p ng-if="d.EpisodesWatched">Episodes Watched: {{d.EpisodesWatched.Got}} &rarr; {{d.EpisodesWatched.Want}}</p>
-                    <p ng-if="d.Rating">
-                      <ng-md-icon icon="grade" size="17"></ng-md-icon>{{d.Rating.Got}}
-                      <ng-md-icon icon="trending_neutral" size="17"></ng-md-icon>
-                      {{d.Rating.Want}}
-                    </p>
-                    <p ng-if="d.Rewatching">Rewatching: {{d.Rewatching.Got}} &rarr; {{d.Rewatching.Want}}</p>
-                    <p ng-if="d.LastUpdated">Updated: {{d.LastUpdated.Got | date:'medium'}}
-                      <ng-md-icon icon="trending_neutral" size="17"></ng-md-icon>{{d.LastUpdated.Want | date:'medium'}}</p>
                   </div>
                 </div>
               </div>

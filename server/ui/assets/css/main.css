@@ -39,7 +39,7 @@ h2 {
   text-align: center;
 }
 .result {
-  background-color: #eee;
+  background: linear-gradient(to bottom, #e6ebee, #f5f7f8 10%, #fff 90%, #cbcbcb);
   border-radius: 3px;
   padding: 10px;
   min-height: 170px;
@@ -47,8 +47,28 @@ h2 {
 .result-title {
   font-size: 1.5em;
   color: #222;
-  margin-bottom: 0.2em;
+  margin-bottom: 0.5em;
   margin-top: 0.2em;
+}
+.pure-table {
+  width: 100%;
+  table-layout: fixed;
+  margin-bottom: 1.5em;
+}
+.row-name {
+  width: 20%;
+}
+.row-value {
+  width: 35%;
+  text-align: center;
+}
+.row-arrow {
+  width: 10%;
+}
+.row-icon {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
 }
 .tag {
   margin: 0 0.1em;
