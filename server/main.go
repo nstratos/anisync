@@ -1,3 +1,13 @@
+// TODO:
+// * Sync functionality.
+// * Disable sync button, enable after check.
+// * Search filter for results.
+// * Filter results based on tag.
+// * Option button to include comments.
+// * Integration tests.
+// * Full unit tests.
+// * Deploy on app engine.
+// * Cookies to keep usernames and options.
 package main
 
 import (
@@ -97,20 +107,20 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	anime4 := "Kuroko no basuke"
+	anime4Pic, err := onepic.Search(anime4)
+	if err != nil {
+		return err
+	}
 	malist := []anisync.Anime{
 		{
-			ID:          1,
-			Title:       anime1,
-			Rating:      "4.0",
-			Image:       anime1Pic,
-			LastUpdated: &now,
-		},
-		{
-			ID:          2,
-			Title:       anime2,
-			Rating:      "3.0",
-			Image:       anime2Pic,
-			LastUpdated: &before,
+			ID:              1,
+			Title:           anime1,
+			Rating:          "4.0",
+			Image:           anime1Pic,
+			LastUpdated:     &now,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 0,
 		},
 		{
 			ID:              3,
@@ -121,14 +131,25 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 			EpisodesWatched: 5,
 			Rewatching:      false,
 		},
+		{
+			ID:              4,
+			Title:           anime4,
+			Rating:          "4.5",
+			Image:           anime4Pic,
+			LastUpdated:     &before,
+			EpisodesWatched: 6,
+			Rewatching:      false,
+		},
 	}
 	hblist := []anisync.Anime{
 		{
-			ID:          1,
-			Title:       anime1,
-			Rating:      "5.0",
-			Image:       anime1Pic,
-			LastUpdated: &now,
+			ID:              1,
+			Title:           anime1,
+			Rating:          "4.0",
+			Image:           anime1Pic,
+			LastUpdated:     &now,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 0,
 		},
 		{
 			ID:          2,
@@ -136,6 +157,7 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 			Rating:      "4.0",
 			Image:       anime2Pic,
 			LastUpdated: &now,
+			Status:      anisync.StatusCurrentlyWatching,
 		},
 		{
 			ID:              3,
@@ -144,6 +166,15 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 			Image:           anime3Pic,
 			LastUpdated:     &now,
 			EpisodesWatched: 10,
+			Rewatching:      true,
+		},
+		{
+			ID:              4,
+			Title:           anime4,
+			Rating:          "5.0",
+			Image:           anime4Pic,
+			LastUpdated:     &now,
+			EpisodesWatched: 6,
 			Rewatching:      true,
 		},
 	}
