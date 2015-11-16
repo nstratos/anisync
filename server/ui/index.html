@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
   <!--<![endif]-->
   <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/ngProgress.css">
 </head>
 
 <body ng-controller="AnisyncCtrl">
@@ -49,8 +50,11 @@
 
     <div class="content pure-u-1 pure-u-md-3-4">
       <div class="pure-u-1">
-        <div class="results">
-          <h1 ng-if="checkResp" class="content-subhead">Check results</h1>
+        <div class="results" ng-cloak>
+          <!-- <h1 ng-if="checkResp" class="content-subhead">Check results</h1> -->
+	  <div class="pie-holder" data-loading ng-show="loading">
+		  <img class="pie" src="assets/img/pie.gif" />
+	  </div>
           <ul>
             <li ng-repeat="d in checkResp.NeedUpdate">
               <div class="result">
@@ -220,9 +224,6 @@
               </div>
             </li>
           </ul>
-          <p>
-            <a href="#">Your MyAnimeList</a>
-          </p>
         </div>
       </div>
     </div>
@@ -235,6 +236,7 @@
   <script src="assets/js/app.js"></script>
   <script src="assets/js/controllers.js"></script>
   <script src="assets/js/services.js"></script>
+  <script src="assets/js/ngProgress.min.js"></script>
 </body>
 
 </html>
