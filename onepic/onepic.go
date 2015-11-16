@@ -23,7 +23,8 @@ func Search(q string) (string, error) {
 	var re struct {
 		ResponseData struct {
 			Results []struct {
-				URL string
+				UnescapedURL string
+				URL          string
 			}
 		}
 	}
@@ -31,5 +32,7 @@ func Search(q string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return re.ResponseData.Results[0].URL, nil
+	// We use the UnescapedURL instead of URL so that it can be directly used.
+	// URL may contain escaped characters which will fail to load.
+	return re.ResponseData.Results[0].UnescapedURL, nil
 }
