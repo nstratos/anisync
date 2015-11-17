@@ -77,6 +77,9 @@
    display: block;
    margin: auto;
  }
+ .switch-mod {
+   min-width: 9.5em;
+ }
  .tag {
    margin: 0 0.1em;
    padding: 0.3em 1em;
@@ -128,6 +131,7 @@
    text-transform: uppercase;
  }
  .brand-tagline {
+   margin-bottom: 0.7em;
    font-weight: 300;
    color: #777;
  }

@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
   <!--<![endif]-->
   <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/toggle-switch.css">
   <link rel="stylesheet" href="assets/css/ngProgress.css">
 </head>
 
@@ -28,19 +29,26 @@
         <h2 class="brand-tagline">Sync your Hummingbird list back to your MyAnimeList.</h2>
 
         <form class="pure-form pure-form-stacked">
+          <label class="switch-light switch-android switch-mod" onclick="">
+            <input type="checkbox" ng-click="switchToggle = !switchToggle">
+            <span>
+	          <span>Sync Off</span>
+            <span>Sync On</span>
+            </span>
+
+            <a></a>
+          </label>
           <fieldset>
             <input type="text" ng-model="req.hbUsername" title="Your Hummingbird.me username"
-            placeholder="HB username" class="sidebar-input pure-input-1 sidebar-input-danger"
-            required>
+            placeholder="HB username" class="sidebar-input pure-input-1" required>
             <input type="text" ng-model="req.malUsername" title="Your MyAnimeList.net username"
-            placeholder="MAL username" class="sidebar-input pure-input-1 sidebar-input-success"
-            required>
+            placeholder="MAL username" class="sidebar-input pure-input-1" required>
             <input type="password" ng-model="req.malPassword" title="Your MyAnimeList.net password"
-            placeholder="MAL Password" class="sidebar-input pure-input-1">
+            placeholder="MAL Password" class="sidebar-input pure-input-1" ng-show="switchToggle" ng-cloak>
 
             <div class="pure-controls">
-              <button type="button" ng-click="check(req)" class="pure-button sidebar-button">Check</button>
-              <button type="button" ng-click="sync(req)" class="pure-button sidebar-button">Sync</button>
+              <button type="button" ng-click="check(req)" class="pure-button sidebar-button" ng-hide="switchToggle">Check</button>
+              <button type="button" ng-click="sync(req)" class="pure-button sidebar-button" ng-show="switchToggle" ng-cloak>Sync</button>
             </div>
 
           </fieldset>
@@ -52,9 +60,9 @@
       <div class="pure-u-1">
         <div class="results" ng-cloak>
           <!-- <h1 ng-if="checkResp" class="content-subhead">Check results</h1> -->
-	  <div class="pie-holder" data-loading ng-show="loading">
-		  <img class="pie" src="assets/img/pie.gif" />
-	  </div>
+          <div class="pie-holder" data-loading ng-show="loading">
+            <img class="pie" src="assets/img/pie.gif" />
+          </div>
           <ul>
             <li ng-repeat="d in checkResp.NeedUpdate">
               <div class="result">
