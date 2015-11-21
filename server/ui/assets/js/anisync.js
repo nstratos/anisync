@@ -1,4 +1,5 @@
-var anisyncApp = angular.module('anisyncApp', ['ngMdIcons', 'anisyncControllers', 'anisyncServices', 'ngProgress']);
+var anisyncApp = angular.module('anisyncApp', ['ngMdIcons', 'anisyncControllers', 'anisyncServices', 'ngProgress', 'remoteValidation']);
+
 var anisyncServices = angular.module('anisyncServices', ['ngResource']);
 
 anisyncServices.factory('Anisync', ['$resource',
@@ -21,10 +22,20 @@ anisyncServices.factory('Anisync', ['$resource',
 ]);
 
 anisyncServices.factory('Sync', ['$resource', ]);
+
 var anisyncControllers = angular.module('anisyncControllers', []);
 
 anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFactory',
   function($scope, Anisync, ngProgressFactory) {
+    // Modifying ngRemoteValidate for malPassword field so that it
+    // sends the username along with the password value.
+    $scope.malPasswordSetArgs = function(val, el, attrs, ngModel) {
+      return {
+        malPassword: val,
+        malUsername: $scope.req.malUsername
+      };
+    };
+    // Initializing ngProgress bar.
     $scope.progressbar = ngProgressFactory.createInstance();
     $scope.progressbar.setColor('#ec8661');
     $scope.check = function(req) {
