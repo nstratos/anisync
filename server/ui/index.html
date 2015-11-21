@@ -39,12 +39,12 @@
             <a></a>
           </label>
           <fieldset>
-            <input type="text" ng-model="req.hbUsername" title="Your Hummingbird.me username"
+            <input type="text" name="hbUsername" ng-model="req.hbUsername" title="Your Hummingbird.me username"
             placeholder="HB username" class="sidebar-input pure-input-1" required>
-            <input type="text" ng-model="req.malUsername" title="Your MyAnimeList.net username"
+            <input type="text" name="malUsername" ng-model="req.malUsername" title="Your MyAnimeList.net username"
             placeholder="MAL username" class="sidebar-input pure-input-1" required>
-            <input type="password" ng-model="req.malPassword" title="Your MyAnimeList.net password"
-            placeholder="MAL Password" class="sidebar-input pure-input-1" ng-show="switchToggle" ng-cloak>
+	    <input type="password" name="malPassword" ng-model="req.malPassword" title="Your MyAnimeList.net password"
+            placeholder="MAL Password" class="sidebar-input pure-input-1" ng-show="switchToggle" ng-cloak ng-remote-validate="/api/mal/verify">
 
             <div class="pure-controls">
               <button type="button" ng-click="check(req)" class="pure-button sidebar-button" ng-hide="switchToggle">Check</button>
@@ -243,6 +243,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-material-icons/0.6.0/angular-material-icons.min.js"></script>
   <script src="assets/js/anisync.js"></script>
   <script src="assets/js/ngProgress.min.js"></script>
+  <script src="assets/js/ngRemoteValidate.js"></script>
 </body>
 
 </html>
