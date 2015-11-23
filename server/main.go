@@ -1,13 +1,3 @@
-// TODO:
-// * Sync functionality.
-// * Disable sync button, enable after check.
-// * Search filter for results.
-// * Filter results based on tag.
-// * Option button to include comments.
-// * Integration tests.
-// * Full unit tests.
-// * Deploy on app engine.
-// * Cookies to keep usernames and options.
 package main
 
 import (
@@ -62,20 +52,18 @@ func check(w http.ResponseWriter, r *http.Request) error {
 
 	malist, resp, err := c.Anime.ListMAL(malUsername)
 	if err != nil {
-		if resp.StatusCode == 404 {
+		if resp.StatusCode == http.StatusNotFound {
 			return &appErr{err, fmt.Sprintf("could not get MyAnimeList for user %v", malUsername), http.StatusNotFound}
-		} else {
-			return &appErr{err, "could not get MyAnimeList", http.StatusInternalServerError}
 		}
+		return &appErr{err, "could not get MyAnimeList", resp.StatusCode}
 	}
 
 	hblist, resp, err := c.Anime.ListHB(hbUsername)
 	if err != nil {
-		if resp.StatusCode == 404 {
+		if resp.StatusCode == http.StatusNotFound {
 			return &appErr{err, fmt.Sprintf("could not get Hummingbird list for user %v", hbUsername), http.StatusNotFound}
-		} else {
-			return &appErr{err, "could not get Hummingbird list", http.StatusInternalServerError}
 		}
+		return &appErr{err, "could not get Hummingbird list", resp.StatusCode}
 	}
 
 	diff := anisync.Compare(malist, hblist)
