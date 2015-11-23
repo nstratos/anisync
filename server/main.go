@@ -42,6 +42,7 @@ func main() {
 	http.Handle("/api/check", appHandler((check)))
 	http.Handle("/api/sync", appHandler((sync)))
 	http.Handle("/api/test/check", appHandler((testCheck)))
+	http.Handle("/api/mal/verify", appHandler((malVerify)))
 
 	fmt.Println("Starting server at :" + *port)
 	if err := http.ListenAndServe(":"+*port, nil); err != nil {
@@ -190,6 +191,59 @@ func testCheck(w http.ResponseWriter, r *http.Request) error {
 	w.Write(bytes)
 	return nil
 }
+
+/*
+malVerify is a handler that asks the MAL API for username and password
+verification. It expects a request body that looks like this:
+
+	{
+		"malPassword": "some-password",
+		"malUsername": "some-username"
+	}
+
+It returns a JSON response that is required by ngRemoteValidate, which should
+look as follows:
+
+	{
+		isValid: bool, 		// Is the value received valid.
+		value: 'myPassword!' 	// value received from server.
+	}
+
+In our case, we send two values to the server. As we can only return back one
+value, we choose that to be the username.
+*/
+func malVerify(w http.ResponseWriter, r *http.Request) error {
+	// Receiving json from POST body.
+	t := struct {
+		MalUsername string
+		MalPassword string
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+
+		return &appErr{nil, "Could not decode body", http.StatusInternalServerError}
+	}
+
+	// Asking MAL for verification of username and password and returning
+	// a json response with the result.
+	res := struct {
+		IsValid bool   `json:"isValid"`
+		Value   string `json:"value"` // We use username as the returned value.
+	}{false, t.MalUsername}
+	c := anisync.NewClient(malAgent)
+	err = c.VerifyMALCredentials(t.MalUsername, t.MalPassword)
+	if err == nil {
+		res.IsValid = true
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		return &appErr{nil, "Could not encode response", http.StatusInternalServerError}
+	}
+
+	return nil
+}
+
 func sync(w http.ResponseWriter, r *http.Request) error {
 	return &appErr{nil, "wip", http.StatusNotImplemented}
 }
