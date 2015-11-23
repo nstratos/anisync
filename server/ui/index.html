@@ -28,9 +28,9 @@
         <h1 class="brand-title">Anisync</h1>
         <h2 class="brand-tagline">Sync your Hummingbird list back to your MyAnimeList.</h2>
 
-        <form class="pure-form pure-form-stacked">
-          <label class="switch-light switch-android switch-mod" onclick="">
-            <input type="checkbox" ng-click="switchToggle = !switchToggle">
+        <form name="mainForm" class="pure-form pure-form-stacked main-form">
+          <label class="switch-light switch-android switch-mod">
+            <input type="checkbox" ng-click="switchToggle()">
             <span>
 	          <span>Sync Off</span>
             <span>Sync On</span>
@@ -43,12 +43,19 @@
             placeholder="HB username" class="sidebar-input pure-input-1" required>
             <input type="text" name="malUsername" ng-model="req.malUsername" title="Your MyAnimeList.net username"
             placeholder="MAL username" class="sidebar-input pure-input-1" required>
-	    <input type="password" name="malPassword" ng-model="req.malPassword" title="Your MyAnimeList.net password"
-            placeholder="MAL Password" class="sidebar-input pure-input-1" ng-show="switchToggle" ng-cloak ng-remote-validate="/api/mal/verify">
+            <input type="password" name="malPassword" ng-model="req.malPassword" title="Your MyAnimeList.net password"
+            placeholder="MAL Password" class="sidebar-input pure-input-1" ng-show="switchOn"
+            id="malPasswordInput" ng-cloak ng-required="switchOn" ng-remote-validate="/api/mal/verify"
+            ng-remote-throttle="900">
+            <span ng-cloak ng-show="mainForm.malPassword.$error.ngRemoteValidate">Password does not match MAL username</span>
 
             <div class="pure-controls">
-              <button type="button" ng-click="check(req)" class="pure-button sidebar-button" ng-hide="switchToggle">Check</button>
-              <button type="button" ng-click="sync(req)" class="pure-button sidebar-button" ng-show="switchToggle" ng-cloak>Sync</button>
+              <button type="button" ng-click="check(req)" class="pure-button sidebar-button"
+              ng-disabled="mainForm.$invalid || mainForm.$pending" ng-hide="switchOn"
+              ng-cloak>Check</button>
+              <button type="button" ng-click="sync(req)" class="pure-button sidebar-button" ng-show="switchOn"
+              id="syncButton" ng-disabled="mainForm.$invalid || mainForm.$pending"
+              ng-cloak>Sync</button>
             </div>
 
           </fieldset>
