@@ -33,6 +33,7 @@ func main() {
 	http.Handle("/api/check", appHandler((handleCheck)))
 	http.Handle("/api/sync", appHandler((handleSync)))
 	http.Handle("/api/test/check", appHandler((handleTestCheck)))
+	http.Handle("/api/test/sync", appHandler((handleTestSync)))
 	http.Handle("/api/mal/verify", appHandler((handleMALVerify)))
 
 	fmt.Println("Starting server at :" + *port)
@@ -42,7 +43,7 @@ func main() {
 
 }
 func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, error) {
-	malist, resp, err := c.Anime.ListMAL(malUsername)
+	malist, resp, err := c.GetMyAnimeList(malUsername)
 	if err != nil {
 		if resp.StatusCode == http.StatusNotFound {
 			return nil, &appErr{err, fmt.Sprintf("could not get MyAnimeList for user %v", malUsername), http.StatusNotFound}
@@ -67,7 +68,7 @@ func handleCheck(w http.ResponseWriter, r *http.Request) error {
 	malUsername := r.FormValue("malUsername")
 
 	// malAgent is produced by go generate.
-	c := anisync.NewClient(malAgent)
+	c := anisync.NewDefaultClient(malAgent)
 
 	diff, err := getDiff(c, malUsername, hbUsername)
 	if err != nil {
@@ -93,11 +94,11 @@ func handleSync(w http.ResponseWriter, r *http.Request) error {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		return &appErr{nil, "sync: could not decode body", http.StatusInternalServerError}
+		return &appErr{nil, "sync: could not decode body", http.StatusBadRequest}
 	}
 
 	// malAgent is produced by go generate.
-	c := anisync.NewClient(malAgent)
+	c := anisync.NewDefaultClient(malAgent)
 
 	diff, err := getDiff(c, t.MALUsername, t.HBUsername)
 	if err != nil {
@@ -177,6 +178,63 @@ func mockUpdateMAL(diff *anisync.Diff) ([]*anisync.Fail, error) {
 	}
 
 	return nil, nil
+}
+
+func handleTestSync(w http.ResponseWriter, r *http.Request) error {
+	// Receiving json from POST body.
+	t := struct {
+		HBUsername  string `json:"hbUsername"`
+		MALUsername string `json:"malUsername"`
+		MALPassword string `json:"malPassword"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		return &appErr{nil, "sync: could not decode body", http.StatusBadRequest}
+	}
+
+	// malAgent is produced by go generate.
+	c := anisync.NewDefaultClient(malAgent)
+
+	diff, err := getDiff(c, t.MALUsername, t.HBUsername)
+	if err != nil {
+		return err
+	}
+
+	//err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
+	//if err != nil {
+	//	return &appErr{err, "could not verify MAL credentials", http.StatusUnauthorized}
+	//}
+
+	var allFails []*anisync.Fail
+	//fails, uerr := c.Anime.UpdateMAL(*diff)
+	fails, uerr := mockUpdateMAL(diff)
+	allFails = append(allFails, fails...)
+
+	//fails, aerr := c.Anime.AddMAL(*diff)
+	fails, aerr := mockUpdateMAL(diff)
+	allFails = append(allFails, fails...)
+
+	report := struct {
+		Fails   []*anisync.Fail
+		Message string
+	}{
+		allFails,
+		"hello",
+	}
+
+	if uerr == nil && aerr == nil {
+		report.Message = "wow much luck"
+	}
+
+	bytes, err := json.Marshal(report)
+	if err != nil {
+		return &appErr{err, "could not marshal failures", http.StatusInternalServerError}
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(bytes)
+
+	return nil
 }
 
 func handleTestCheck(w http.ResponseWriter, r *http.Request) error {
@@ -323,7 +381,7 @@ func handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 		t.MALUsername,
 	}
 
-	c := anisync.NewClient(malAgent)
+	c := anisync.NewDefaultClient(malAgent)
 	err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
 	if err == nil {
 		res.IsValid = true
