@@ -94,9 +94,9 @@ func run() error {
 	}
 
 	// malAgent is produced by go generate.
-	c := anisync.NewClient(malAgent)
+	c := anisync.NewDefaultClient(malAgent)
 
-	malist, _, err := c.Anime.ListMAL(*malUsername)
+	malist, _, err := c.GetMyAnimeList(*malUsername)
 	if err != nil {
 		return fmt.Errorf("could not get myAnimeList %v", err)
 	}
