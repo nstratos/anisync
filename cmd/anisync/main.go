@@ -20,21 +20,6 @@ var (
 	hbUsername  = flag.String("hb-username", "", "Your Hummingbird `username`, alternatively set HB_USERNAME.")
 )
 
-func findAnimeInListByTitle(anime, list []anisync.Anime, w io.Writer) {
-	matches := 0
-	for _, a := range anime {
-		found := anisync.FindByTitle(list, a.Title)
-		if found != nil {
-			fmt.Fprintf(w, "+++ %v\n", a.Title)
-			matches++
-		} else {
-			fmt.Fprintf(w, "--- %v\n", a.Title)
-		}
-	}
-	fmt.Fprintf(w, "Total titles: %d\n", len(anime))
-	fmt.Fprintf(w, "Found %d matches on list out of %d\n", matches, len(list))
-}
-
 func findAnimeInListByID(anime, list []anisync.Anime, w io.Writer) {
 	matches := 0
 	for _, a := range anime {

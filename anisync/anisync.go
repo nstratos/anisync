@@ -85,8 +85,7 @@ type HBClient struct {
 
 // NewHBClient creates a new Hummingbird client.
 func NewHBClient(client *hb.Client) *HBClient {
-	c := &HBClient{client: hb.NewClient(nil)}
-	return c
+	return &HBClient{client: hb.NewClient(nil)}
 }
 
 type Client struct {
@@ -283,14 +282,6 @@ func FindByID(anime []Anime, id int) *Anime {
 	return nil
 }
 
-func FindByTitle(anime []Anime, title string) *Anime {
-	i := sort.Search(len(anime), func(i int) bool { return anime[i].Title >= title })
-	if i < len(anime) && anime[i].Title == title {
-		return &anime[i]
-	}
-	return nil
-}
-
 type Anime struct {
 	ID              int
 	Status          string
@@ -309,9 +300,3 @@ type ByID []Anime
 func (a ByID) Len() int           { return len(a) }
 func (a ByID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByID) Less(i, j int) bool { return a[i].ID < a[j].ID }
-
-type ByTitle []Anime
-
-func (a ByTitle) Len() int           { return len(a) }
-func (a ByTitle) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByTitle) Less(i, j int) bool { return a[i].Title < a[j].Title }
