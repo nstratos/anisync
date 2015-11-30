@@ -13,50 +13,80 @@ import (
 	"github.com/nstratos/go-myanimelist/mal"
 )
 
+// Resources is an interface of all the operations we need from the external
+// resources (MyAnimeList.net and Hummingbird.me APIs). It can be injected in
+// anisync.Client which makes it easier to mock these operations during
+// testing.
 type Resources interface {
 	MAL
 	HB
 }
 
+// NewResources returns a Resources implementation that consists of a MALClient
+// and a HBClient which are implementations of their respective MAL and HB
+// interfaces. That implementation can be injected in anisync.Client using
+// anisync.NewClient which is useful for testing. Alternatively, a new
+// anisync.Client can also be created by anisync.NewDefaultClient which uses
+// this function internally. In the typical case NewDefaultClient will be used
+// in the program while the combination of NewResources and NewClient will be
+// used for testing.
+func NewResources(malClient *mal.Client, malAgent string, hbClient *hb.Client) Resources {
+	return struct {
+		*MALClient
+		*HBClient
+	}{
+		NewMALClient(malClient, malAgent),
+		NewHBClient(hbClient),
+	}
+}
+
+// MAL is an interface describing all the operations that we need from the
+// MyAnimeList.net API.
 type MAL interface {
-	//VerifyMALCredentials(username, password string) error
+	Verify(username, password string) error
 	MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error)
 }
 
+// HB is an interface describing all the operations that we need from the
+// Hummingbird.me API.
 type HB interface {
 }
 
+// MALClient is a MyAnimeList client that contains implementations for all the
+// operations that we need from the MyAnimeList.net API.
 type MALClient struct {
 	client *mal.Client
 }
 
+// NewMALClient creates a new MyAnimeList client that uses malAgent as user
+// agent to communicate with the MyAnimeList.net API.
 func NewMALClient(client *mal.Client, malAgent string) *MALClient {
 	c := &MALClient{client: mal.NewClient()}
 	c.client.SetUserAgent(malAgent)
 	return c
 }
 
+func (c *MALClient) Verify(username, password string) error {
+	c.client.SetCredentials(username, password)
+	_, _, err := c.client.Account.Verify()
+	return err
+}
+
+// MyAnimeList returns the anime list of a user.
 func (c *MALClient) MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error) {
 	return c.client.Anime.List(username)
 }
 
+// HBClient is a Hummingbird client that contains implementations for all the
+// operations that we need from the Hummingbird.met API.
 type HBClient struct {
 	client *hb.Client
 }
 
+// NewHBClient creates a new Hummingbird client.
 func NewHBClient(client *hb.Client) *HBClient {
 	c := &HBClient{client: hb.NewClient(nil)}
 	return c
-}
-
-func NewResources(malClient *mal.Client, malAgent string, hbClient *hb.Client) Resources {
-	return struct {
-		*HBClient
-		*MALClient
-	}{
-		NewHBClient(hbClient),
-		NewMALClient(malClient, malAgent),
-	}
 }
 
 type Client struct {
@@ -80,9 +110,7 @@ func NewClient(resources Resources) *Client {
 }
 
 func (c *Client) VerifyMALCredentials(username, password string) error {
-	c.mal.SetCredentials(username, password)
-	_, _, err := c.mal.Account.Verify()
-	return err
+	return c.resources.Verify(username, password)
 }
 
 type AnimeService struct {

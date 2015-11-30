@@ -37,6 +37,7 @@ type ResourcesStub struct {
 	HBClientStub
 	MALClientStub
 }
+
 type HBClientStub struct {
 	client *hb.Client
 }
@@ -55,6 +56,15 @@ func NewMALClientStub(malClient *mal.Client, malAgent string) *MALClientStub {
 	return c
 }
 
+func (c *MALClientStub) Verify(username, password string) error {
+	switch {
+	case username == "TestUsername" && password == "TestPassword":
+		return nil
+	default:
+		return fmt.Errorf("wrong password")
+	}
+
+}
 func (c *MALClientStub) MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error) {
 	var (
 		animeList *mal.AnimeList
@@ -128,7 +138,7 @@ func (c *MALClientStub) MyAnimeList(username string) (*mal.AnimeList, *mal.Respo
 	return animeList, resp, err
 }
 
-func TestGetMyAnimeList(t *testing.T) {
+func TestClient_GetMyAnimeList(t *testing.T) {
 	got, _, err := client.GetMyAnimeList("TestUser")
 	if err != nil {
 		t.Errorf("GetMyAnimeList returned error %v", err)
@@ -153,7 +163,14 @@ func TestGetMyAnimeList(t *testing.T) {
 
 }
 
-func TestGetMyAnimeList_InvalidTime(t *testing.T) {
+func TestClient_GetMyAnimeList_invalidUsername(t *testing.T) {
+	_, _, err := client.GetMyAnimeList("InvalidTestUser")
+	if err == nil {
+		t.Errorf("GetMyAnimeList for invalid user expected to return err")
+	}
+}
+
+func TestClient_GetMyAnimeList_invalidTime(t *testing.T) {
 	got, _, err := client.GetMyAnimeList("TestUserInvalidTime")
 	if err != nil {
 		t.Errorf("GetMyAnimeList with invalid time, instead of skipping, returned error %v", err)
@@ -175,7 +192,7 @@ func TestGetMyAnimeList_InvalidTime(t *testing.T) {
 
 }
 
-func TestGetMyAnimeList_InvalidStatus(t *testing.T) {
+func TestClient_GetMyAnimeList_invalidStatus(t *testing.T) {
 	got, _, err := client.GetMyAnimeList("TestUserInvalidStatus")
 	if err != nil {
 		t.Errorf("GetMyAnimeList with invalid status, instead of skipping, returned error %v", err)
@@ -197,9 +214,16 @@ func TestGetMyAnimeList_InvalidStatus(t *testing.T) {
 
 }
 
-func TestGetMyAnimeList_InvalidUsername(t *testing.T) {
-	_, _, err := client.GetMyAnimeList("InvalidTestUser")
+func TestClient_VerifyMALCredentials(t *testing.T) {
+	err := client.VerifyMALCredentials("TestUsername", "TestPassword")
+	if err != nil {
+		t.Errorf("VerifyMALCredentials with correct username and password expected to return nil")
+	}
+}
+
+func TestClient_VerifyMALCredentials_wrongPassword(t *testing.T) {
+	err := client.VerifyMALCredentials("TestUser", "WrongTestPassword")
 	if err == nil {
-		t.Errorf("GetMyAnimeList for invalid user expected to return err")
+		t.Errorf("VerifyMALCredentials with wrong password expected to return err")
 	}
 }
