@@ -1,6 +1,13 @@
 package anisync
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"math"
+	"strconv"
+
+	"github.com/nstratos/go-myanimelist/mal"
+)
 
 type Fail struct {
 	Anime Anime
@@ -62,6 +69,47 @@ func (s *AnimeService) AddMALAnime(a Anime) error {
 		return err
 	}
 	return nil
+}
+
+func toMALEntry(a Anime) (mal.AnimeEntry, error) {
+	e := mal.AnimeEntry{
+		Episode:        a.EpisodesWatched,
+		Comments:       a.Notes,
+		TimesRewatched: a.TimesRewatched,
+	}
+	// Status
+	status, err := toMALStatus(a.Status)
+	if err != nil {
+		return mal.AnimeEntry{}, err
+	}
+	a.Status = status
+
+	// rating
+	if a.Rating != "" {
+		f, err := strconv.ParseFloat(a.Rating, 64)
+		if err == nil {
+			f = math.Ceil(f * 2)
+			score := int(f)
+			e.Score = score
+		}
+	}
+	if a.Rewatching {
+		e.EnableRewatching = 1
+	}
+	return e, nil
+}
+
+func toMALEntries(anime []Anime) []mal.AnimeEntry {
+	var malEntries []mal.AnimeEntry
+	for _, a := range anime {
+		e, err := toMALEntry(a)
+		if err != nil {
+			log.Printf("Discarded to MAL entry %v", err)
+			continue
+		}
+		malEntries = append(malEntries, e)
+	}
+	return malEntries
 }
 
 func printAnimeUpdate(a Anime, op string) {

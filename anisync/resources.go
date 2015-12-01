@@ -1,0 +1,48 @@
+package anisync
+
+import (
+	"net/http"
+
+	"github.com/nstratos/go-hummingbird/hb"
+	"github.com/nstratos/go-myanimelist/mal"
+)
+
+// Resources is an interface of all the operations we need from the external
+// resources (MyAnimeList.net and Hummingbird.me APIs). It can be injected in
+// anisync.Client which makes it easier to mock these operations during
+// testing.
+type Resources interface {
+	MAL
+	HB
+}
+
+// NewResources returns a Resources implementation that consists of a MALClient
+// and a HBClient which are implementations of their respective MAL and HB
+// interfaces. That implementation can be injected in anisync.Client using
+// anisync.NewClient which is useful for testing. Alternatively, a new
+// anisync.Client can also be created by anisync.NewDefaultClient which uses
+// this function internally. In the typical case NewDefaultClient will be used
+// in the program while the combination of NewResources and NewClient will be
+// used for testing.
+func NewResources(malClient *mal.Client, malAgent string, hbClient *hb.Client) Resources {
+	return struct {
+		*MALClient
+		*HBClient
+	}{
+		NewMALClient(malClient, malAgent),
+		NewHBClient(hbClient),
+	}
+}
+
+// MAL is an interface describing all the operations that we need from the
+// MyAnimeList.net API.
+type MAL interface {
+	Verify(username, password string) error
+	MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error)
+}
+
+// HB is an interface describing all the operations that we need from the
+// Hummingbird.me API.
+type HB interface {
+	GetAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error)
+}
