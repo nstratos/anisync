@@ -86,7 +86,7 @@ func run() error {
 		return fmt.Errorf("could not get myAnimeList %v", err)
 	}
 
-	hblist, _, err := c.Anime.ListHB(*hbUsername)
+	hblist, _, err := c.GetHBAnimeList(*hbUsername)
 	if err != nil {
 		return fmt.Errorf("could not get Hummingbird list %v", err)
 	}

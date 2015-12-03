@@ -17,6 +17,6 @@ func NewHBClient(client *hb.Client) *HBClient {
 	return &HBClient{client: hb.NewClient(nil)}
 }
 
-func (c *HBClient) GetAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error) {
+func (c *HBClient) HBAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error) {
 	return c.client.User.Library(username, "")
 }

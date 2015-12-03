@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Client) GetHBAnimeList(username string) ([]Anime, *http.Response, error) {
-	entries, resp, err := c.resources.GetAnimeList(username)
+	entries, resp, err := c.resources.HBAnimeList(username)
 	if err != nil {
 		return nil, resp, err
 	}

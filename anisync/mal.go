@@ -26,3 +26,11 @@ func (c *MALClient) Verify(username, password string) error {
 func (c *MALClient) MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error) {
 	return c.client.Anime.List(username)
 }
+
+func (c *MALClient) UpdateMALAnimeEntry(id int, entry mal.AnimeEntry) (*mal.Response, error) {
+	return c.client.Anime.Update(id, entry)
+}
+
+func (c *MALClient) AddMALAnimeEntry(id int, entry mal.AnimeEntry) (*mal.Response, error) {
+	return c.client.Anime.Add(id, entry)
+}

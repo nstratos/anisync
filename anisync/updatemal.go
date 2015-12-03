@@ -4,15 +4,11 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net/url"
 	"strconv"
 
 	"github.com/nstratos/go-myanimelist/mal"
 )
-
-type Fail struct {
-	Anime Anime
-	Error error
-}
 
 // UpdateMAL gets the difference between the two anime lists and updates the
 // the ones that need updating to MyAnimeList based on the values of the
@@ -43,6 +39,69 @@ func (s *AnimeService) AddMAL(diff Diff) ([]Fail, error) {
 		}
 	}
 	return addf, failure
+}
+
+type SyncResult struct {
+	Adds        []Anime
+	Updates     []Anime
+	AddFails    []Fail
+	UpdateFails []Fail
+	UpdatedList url.URL
+}
+
+type Fail struct {
+	Anime Anime
+	Error error
+}
+
+func (c *Client) SyncMALAnime(diff Diff) *SyncResult {
+	var adds []Anime
+	var addf []Fail
+	for _, d := range diff.Missing {
+		err := c.AddMALAnime(d)
+		if err != nil {
+			addf = append(addf, Fail{Anime: d, Error: err})
+			continue
+		}
+		adds = append(adds, d)
+	}
+
+	var upds []Anime
+	var updf []Fail
+	for _, d := range diff.NeedUpdate {
+		err := c.UpdateMALAnime(d.Anime)
+		if err != nil {
+			updf = append(updf, Fail{Anime: d.Anime, Error: err})
+			continue
+		}
+		upds = append(upds, d.Anime)
+	}
+
+	return &SyncResult{Adds: adds, AddFails: addf, Updates: upds, UpdateFails: updf}
+}
+
+func (c *Client) UpdateMALAnime(a Anime) error {
+	e, err := toMALEntry(a)
+	if err != nil {
+		return err
+	}
+	_, err = c.resources.UpdateMALAnimeEntry(a.ID, e)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Client) AddMALAnime(a Anime) error {
+	e, err := toMALEntry(a)
+	if err != nil {
+		return err
+	}
+	_, err = c.resources.AddMALAnimeEntry(a.ID, e)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *AnimeService) UpdateMALAnime(a Anime) error {

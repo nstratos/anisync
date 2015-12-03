@@ -12,7 +12,7 @@ import (
 	"github.com/nstratos/go-hummingbird/hb"
 )
 
-func (c *HBClientStub) GetAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error) {
+func (c *HBClientStub) HBAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error) {
 	switch username {
 	case "TestUser":
 		updatedAt := time.Date(2015, time.December, 01, 01, 27, 01, 0, time.UTC)

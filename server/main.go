@@ -51,7 +51,7 @@ func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, 
 		return nil, &appErr{err, "could not get MyAnimeList", resp.StatusCode}
 	}
 
-	hblist, resp, err := c.Anime.ListHB(hbUsername)
+	hblist, resp, err := c.GetHBAnimeList(hbUsername)
 	if err != nil {
 		if resp.StatusCode == http.StatusNotFound {
 			return nil, &appErr{err, fmt.Sprintf("could not get Hummingbird list for user %v", hbUsername), http.StatusNotFound}

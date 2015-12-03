@@ -39,10 +39,12 @@ func NewResources(malClient *mal.Client, malAgent string, hbClient *hb.Client) R
 type MAL interface {
 	Verify(username, password string) error
 	MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error)
+	UpdateMALAnimeEntry(id int, entry mal.AnimeEntry) (*mal.Response, error)
+	AddMALAnimeEntry(id int, entry mal.AnimeEntry) (*mal.Response, error)
 }
 
 // HB is an interface describing all the operations that we need from the
 // Hummingbird.me API.
 type HB interface {
-	GetAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error)
+	HBAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error)
 }

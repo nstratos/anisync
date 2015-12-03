@@ -23,5 +23,4 @@ func (c *MALClientStub) Verify(username, password string) error {
 	default:
 		return fmt.Errorf("wrong password")
 	}
-
 }
