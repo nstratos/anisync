@@ -4,3 +4,5 @@ agent.txt
 stdout.txt
 zerorating
 count.out
+trace.out
+*.test
