@@ -110,30 +110,11 @@ func handleSync(w http.ResponseWriter, r *http.Request) error {
 		return &appErr{err, "could not verify MAL credentials", http.StatusUnauthorized}
 	}
 
-	var allFails []*anisync.Fail
-	//fails, uerr := c.Anime.UpdateMAL(*diff)
-	fails, uerr := mockUpdateMAL(diff)
-	allFails = append(allFails, fails...)
+	syncResp := c.SyncMALAnime(*diff)
 
-	//fails, aerr := c.Anime.AddMAL(*diff)
-	fails, aerr := mockUpdateMAL(diff)
-	allFails = append(allFails, fails...)
-
-	report := struct {
-		Fails   []*anisync.Fail
-		Message string
-	}{
-		allFails,
-		"hello",
-	}
-
-	if uerr == nil && aerr == nil {
-		report.Message = "wow much luck"
-	}
-
-	bytes, err := json.Marshal(report)
+	bytes, err := json.Marshal(syncResp)
 	if err != nil {
-		return &appErr{err, "could not marshal failures", http.StatusInternalServerError}
+		return &appErr{err, "could not marshal sync response", http.StatusInternalServerError}
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
