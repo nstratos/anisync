@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net/url"
 	"strconv"
 
 	"github.com/nstratos/go-myanimelist/mal"
 )
+
+type Fail struct {
+	Anime Anime
+	Error error
+}
 
 // UpdateMAL gets the difference between the two anime lists and updates the
 // the ones that need updating to MyAnimeList based on the values of the
@@ -42,39 +46,51 @@ func (s *AnimeService) AddMAL(diff Diff) ([]Fail, error) {
 }
 
 type SyncResult struct {
-	Adds        []Anime
-	Updates     []Anime
-	AddFails    []Fail
-	UpdateFails []Fail
-	UpdatedList url.URL
+	Adds        []AddSuccess
+	AddFails    []AddFail
+	Updates     []UpdateSuccess
+	UpdateFails []UpdateFail
 }
 
-type Fail struct {
+type AddSuccess struct {
+	Anime Anime
+}
+
+type AddFail struct {
 	Anime Anime
 	Error error
 }
 
+type UpdateSuccess struct {
+	AniDiff
+}
+
+type UpdateFail struct {
+	AniDiff
+	Error error
+}
+
 func (c *Client) SyncMALAnime(diff Diff) *SyncResult {
-	var adds []Anime
-	var addf []Fail
-	for _, d := range diff.Missing {
-		err := c.AddMALAnime(d)
+	var adds []AddSuccess
+	var addf []AddFail
+	for _, a := range diff.Missing {
+		err := c.AddMALAnime(a)
 		if err != nil {
-			addf = append(addf, Fail{Anime: d, Error: err})
+			addf = append(addf, AddFail{Anime: a, Error: err})
 			continue
 		}
-		adds = append(adds, d)
+		adds = append(adds, AddSuccess{Anime: a})
 	}
 
-	var upds []Anime
-	var updf []Fail
+	var upds []UpdateSuccess
+	var updf []UpdateFail
 	for _, d := range diff.NeedUpdate {
 		err := c.UpdateMALAnime(d.Anime)
 		if err != nil {
-			updf = append(updf, Fail{Anime: d.Anime, Error: err})
+			updf = append(updf, UpdateFail{AniDiff: d, Error: err})
 			continue
 		}
-		upds = append(upds, d.Anime)
+		upds = append(upds, UpdateSuccess{AniDiff: d})
 	}
 
 	return &SyncResult{Adds: adds, AddFails: addf, Updates: upds, UpdateFails: updf}
@@ -85,9 +101,27 @@ func (c *Client) UpdateMALAnime(a Anime) error {
 	if err != nil {
 		return err
 	}
+	// Doing an extra update to make sure that the anime episode changes.
+	// That's because MyAnimeList.net only changes the last updated value
+	// of an anime in the case of an episode change.
+	extraUpdateEntry := e
+	switch {
+	case extraUpdateEntry.Episode == 0:
+		extraUpdateEntry.Episode = 1
+	default:
+		extraUpdateEntry.Episode = 0
+	}
+	// We do not return if an error happens as we really want the second
+	// update to happen, otherwise we might lose the original data.
+	_, extraUpdateErr := c.resources.UpdateMALAnimeEntry(a.ID, extraUpdateEntry)
+
+	// Normal update.
 	_, err = c.resources.UpdateMALAnimeEntry(a.ID, e)
 	if err != nil {
 		return err
+	}
+	if extraUpdateErr != nil {
+		return extraUpdateErr
 	}
 	return nil
 }
@@ -141,7 +175,7 @@ func toMALEntry(a Anime) (mal.AnimeEntry, error) {
 	if err != nil {
 		return mal.AnimeEntry{}, err
 	}
-	a.Status = status
+	e.Status = status
 
 	// rating
 	if a.Rating != "" {
