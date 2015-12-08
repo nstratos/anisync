@@ -154,21 +154,29 @@ var syncTests = []struct {
 			},
 		},
 		&anisync.SyncResult{
-			Updates: []anisync.Anime{
+			Updates: []anisync.UpdateSuccess{
 				{
-					ID:     validAnimeID,
-					Title:  "Anime1",
-					Rating: "4.5",
-					Status: anisync.StatusOnHold,
+					AniDiff: anisync.AniDiff{
+						Anime: anisync.Anime{
+							ID:     validAnimeID,
+							Title:  "Anime1",
+							Rating: "4.5",
+							Status: anisync.StatusOnHold,
+						},
+						Rating: &anisync.RatingDiff{Got: "3.5", Want: "4.5"},
+					},
 				},
 			},
-			UpdateFails: []anisync.Fail{
+			UpdateFails: []anisync.UpdateFail{
 				{
-					Anime: anisync.Anime{
-						ID:     notFoundAnimeID,
-						Title:  "Anime2",
-						Rating: "2.0",
-						Status: anisync.StatusDropped,
+					AniDiff: anisync.AniDiff{
+						Anime: anisync.Anime{
+							ID:     notFoundAnimeID,
+							Title:  "Anime2",
+							Rating: "2.0",
+							Status: anisync.StatusDropped,
+						},
+						Rating: &anisync.RatingDiff{Got: "1.0", Want: "2.0"},
 					},
 					Error: fmt.Errorf("anime not found"),
 				},
@@ -209,15 +217,17 @@ var syncTests = []struct {
 			},
 		},
 		&anisync.SyncResult{
-			Adds: []anisync.Anime{
+			Adds: []anisync.AddSuccess{
 				{
-					ID:     validAnimeID,
-					Title:  "Anime1",
-					Rating: "4.5",
-					Status: anisync.StatusOnHold,
+					Anime: anisync.Anime{
+						ID:     validAnimeID,
+						Title:  "Anime1",
+						Rating: "4.5",
+						Status: anisync.StatusOnHold,
+					},
 				},
 			},
-			AddFails: []anisync.Fail{
+			AddFails: []anisync.AddFail{
 				{
 					Anime: anisync.Anime{
 						ID:     notFoundAnimeID,
