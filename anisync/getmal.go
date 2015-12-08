@@ -2,7 +2,6 @@ package anisync
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -16,22 +15,29 @@ func (c *Client) GetMyAnimeList(username string) ([]Anime, *http.Response, error
 	if err != nil {
 		return nil, resp.Response, err
 	}
-	anime := fromMALEntries(*list)
+	// Silently ignoring bad MAL entries if any.
+	anime, _ := fromMALEntries(*list)
 	sort.Sort(ByID(anime))
 	return anime, resp.Response, nil
 }
 
-func fromMALEntries(malist mal.AnimeList) []Anime {
+type badMALEntry struct {
+	MALAnime mal.Anime
+	Error    error
+}
+
+func fromMALEntries(malist mal.AnimeList) ([]Anime, []badMALEntry) {
 	var anime []Anime
+	var fails []badMALEntry
 	for _, mala := range malist.Anime {
 		a, err := fromMALEntry(mala)
 		if err != nil {
-			log.Printf("Discarded MAL entry: %v", err)
+			fails = append(fails, badMALEntry{MALAnime: mala, Error: err})
 			continue
 		}
 		anime = append(anime, a)
 	}
-	return anime
+	return anime, fails
 }
 
 func fromMALEntry(mala mal.Anime) (Anime, error) {

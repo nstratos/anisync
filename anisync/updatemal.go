@@ -2,7 +2,6 @@ package anisync
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"strconv"
 
@@ -190,19 +189,6 @@ func toMALEntry(a Anime) (mal.AnimeEntry, error) {
 		e.EnableRewatching = 1
 	}
 	return e, nil
-}
-
-func toMALEntries(anime []Anime) []mal.AnimeEntry {
-	var malEntries []mal.AnimeEntry
-	for _, a := range anime {
-		e, err := toMALEntry(a)
-		if err != nil {
-			log.Printf("Discarded to MAL entry %v", err)
-			continue
-		}
-		malEntries = append(malEntries, e)
-	}
-	return malEntries
 }
 
 func printAnimeUpdate(a Anime, op string) {
