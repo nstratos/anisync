@@ -30,10 +30,10 @@ var compareTests = []struct {
 			},
 		},
 	}},
-	{name: "NeedUpdate last updated", Diff: &anisync.Diff{
+	{name: "NeedUpdate last updated (uncertain)", Diff: &anisync.Diff{
 		Left:  []anisync.Anime{{ID: 1, Title: "Anime1", LastUpdated: &before}, {ID: 2, Title: "Anime2", LastUpdated: &before}},
 		Right: []anisync.Anime{{ID: 1, Title: "Anime1", LastUpdated: &now}, {ID: 2, Title: "Anime2", LastUpdated: &now}},
-		NeedUpdate: []anisync.AniDiff{
+		Uncertain: []anisync.AniDiff{
 			{
 				Anime:       anisync.Anime{ID: 1, Title: "Anime1", LastUpdated: &now},
 				LastUpdated: &anisync.LastUpdatedDiff{Got: before, Want: now},

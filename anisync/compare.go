@@ -13,6 +13,7 @@ type Diff struct {
 	Missing    []Anime
 	NeedUpdate []AniDiff
 	UpToDate   []Anime
+	Uncertain  []AniDiff
 }
 
 // Compare compares two anime lists and returns the difference containing
@@ -26,15 +27,18 @@ func Compare(left, right []Anime) *Diff {
 		missing    []Anime
 		needUpdate []AniDiff
 		upToDate   []Anime
+		uncertain  []AniDiff
 	)
 	for _, a := range right {
 		found := FindByID(left, a.ID)
 		if found != nil {
-			//fmt.Printf("found: %+v\n", found)
-			needsUpdate, diff := compare(*found, a)
-			if needsUpdate {
+			needsUpdate, isUncertain, diff := compare(*found, a)
+			switch {
+			case needsUpdate:
 				needUpdate = append(needUpdate, diff)
-			} else {
+			case isUncertain:
+				uncertain = append(uncertain, diff)
+			default:
 				upToDate = append(upToDate, a)
 			}
 		} else {
@@ -44,6 +48,7 @@ func Compare(left, right []Anime) *Diff {
 	diff.Missing = missing
 	diff.NeedUpdate = needUpdate
 	diff.UpToDate = upToDate
+	diff.Uncertain = uncertain
 	return diff
 }
 
@@ -81,8 +86,9 @@ type LastUpdatedDiff struct {
 	Want time.Time
 }
 
-func compare(left, right Anime) (bool, AniDiff) {
-	needsUpdate := false
+func compare(left, right Anime) (bool, bool, AniDiff) {
+	needsUpdate, uncertain := false, false
+
 	diff := AniDiff{Anime: right}
 	if got, want := left.Status, right.Status; got != want {
 		diff.Status = &StatusDiff{got, want}
@@ -112,10 +118,13 @@ func compare(left, right Anime) (bool, AniDiff) {
 		c := compareLastUpdate(left, right)
 		if got, want := left.LastUpdated, right.LastUpdated; c == -1 {
 			diff.LastUpdated = &LastUpdatedDiff{*got, *want}
-			needsUpdate = true
+			if needsUpdate == false {
+				uncertain = true
+			}
 		}
 	}
-	return needsUpdate, diff
+
+	return needsUpdate, uncertain, diff
 }
 
 // compareLastUpdate compares the LastUpdated time values of two Anime.

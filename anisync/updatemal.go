@@ -100,27 +100,9 @@ func (c *Client) UpdateMALAnime(a Anime) error {
 	if err != nil {
 		return err
 	}
-	// Doing an extra update to make sure that the anime episode changes.
-	// That's because MyAnimeList.net only changes the last updated value
-	// of an anime in the case of an episode change.
-	extraUpdateEntry := e
-	switch {
-	case extraUpdateEntry.Episode == 0:
-		extraUpdateEntry.Episode = 1
-	default:
-		extraUpdateEntry.Episode = 0
-	}
-	// We do not return if an error happens as we really want the second
-	// update to happen, otherwise we might lose the original data.
-	_, extraUpdateErr := c.resources.UpdateMALAnimeEntry(a.ID, extraUpdateEntry)
-
-	// Normal update.
 	_, err = c.resources.UpdateMALAnimeEntry(a.ID, e)
 	if err != nil {
 		return err
-	}
-	if extraUpdateErr != nil {
-		return extraUpdateErr
 	}
 	return nil
 }
