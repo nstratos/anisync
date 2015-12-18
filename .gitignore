@@ -3,6 +3,7 @@ agent.go
 agent.txt
 stdout.txt
 zerorating
+malupdated
 count.out
 trace.out
 *.test
