@@ -1,0 +1,67 @@
+<li ng-repeat="d in checkResp.Uncertain">
+  <div class="result">
+    <div class="pure-g">
+      <div class="thumb-wrapper pure-u-1-5">
+        <img ng-src="{{d.Anime.Image}}" class="thumb" alt="{{d.Anime.Title}} image">
+      </div>
+      <div class="pure-u-4-5">
+        <span class="tag tag-info">Okay</span>
+        <h4 class="result-title">{{d.Anime.Title}}</h4>
+        <table class="pure-table pure-table-horizontal">
+          <thead>
+            <tr>
+              <th class="row-name"></th>
+              <th class="row-value">
+                <img class="row-icon" src="assets/img/myanimelist_icon.png" alt="myanimelist_icon">
+                <img class="row-icon" src="assets/img/hummingbird_icon.png" alt="hummingbird_icon">
+              </th>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-name">Status</td>
+              <td class="row-value">{{d.Anime.Status}}</td>
+            </tr>
+            <tr>
+              <td class="row-name">Rating</td>
+              <td class="row-value">{{d.Anime.Rating}}</td>
+            </tr>
+            <tr>
+              <td class="row-name">Ep. Watched</td>
+              <td class="row-value">{{d.Anime.EpisodesWatched}}</td>
+            </tr>
+            <tr>
+              <td class="row-name">Rewatching</td>
+              <td class="row-value">{{d.Anime.Rewatching}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="pure-table pure-table-horizontal">
+          <thead>
+            <tr>
+              <th class="row-name"></th>
+              <th class="row-value">
+                <img class="row-icon" src="assets/img/myanimelist_icon.png" alt="myanimelist_icon">
+              </th>
+              <th class="row-arrow"></th>
+              <th class="row-value">
+                <img class="row-icon" src="assets/img/hummingbird_icon.png" alt="hummingbird_icon">
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-if="d.LastUpdated">
+              <td class="row-name">Updated</td>
+              <td class="row-value">{{d.LastUpdated.Got | date:'medium'}}</td>
+              <td class="row-arrow">
+                <ng-md-icon icon="trending_neutral" size="20"></ng-md-icon>
+              </td>
+              <td class="row-value">{{d.LastUpdated.Want | date:'medium'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</li>

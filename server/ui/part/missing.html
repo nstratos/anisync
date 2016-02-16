@@ -1,0 +1,46 @@
+<li ng-repeat="d in checkResp.Missing">
+  <div class="result">
+    <div class="pure-g">
+      <div class="thumb-wrapper pure-u-1-5">
+        <img ng-src="{{d.Image}}" class="thumb" alt="{{d.Title}} image">
+      </div>
+      <div class="pure-u-4-5">
+        <span class="tag tag-danger">Missing</span>
+        <h4 class="result-title">{{d.Title}}</h4>
+        <table class="pure-table pure-table-horizontal">
+          <thead>
+            <tr>
+              <th class="row-name"></th>
+              <th class="row-value">
+                <img class="row-icon" src="assets/img/hummingbird_icon.png" alt="hummingbird_icon">
+              </th>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-name">Status</td>
+              <td class="row-value">{{d.Status}}</td>
+            </tr>
+            <tr>
+              <td class="row-name">Rating</td>
+              <td class="row-value">{{d.Rating}}</td>
+            </tr>
+            <tr>
+              <td class="row-name">Ep. Watched</td>
+              <td class="row-value">{{d.EpisodesWatched}}</td>
+            </tr>
+            <tr>
+              <td class="row-name">Updated</td>
+              <td class="row-value">{{d.LastUpdated | date:'medium'}}</td>
+            </tr>
+            <tr>
+              <td class="row-name">Rewatching</td>
+              <td class="row-value">{{d.Rewatching}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</li>
