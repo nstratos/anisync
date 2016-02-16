@@ -1,7 +1,6 @@
 package anisync
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 
@@ -114,15 +113,4 @@ func toMALEntry(a Anime) (mal.AnimeEntry, error) {
 		e.EnableRewatching = 1
 	}
 	return e, nil
-}
-
-func printAnimeUpdate(a Anime, op string) {
-	fmt.Printf("%v %7v \t%v ", op, a.ID, a.Title)
-	fmt.Printf("with values (")
-	fmt.Printf("Status: %v, ", a.Status)
-	fmt.Printf("EpisodesWatched: %v, ", a.EpisodesWatched)
-	fmt.Printf("Rating: %v, ", a.Rating)
-	fmt.Printf("Rewatching: %v, ", a.Rewatching)
-	fmt.Printf("TimesRewatched: %v, ", a.TimesRewatched)
-	fmt.Printf("Notes: %v)\n", a.Notes)
 }
