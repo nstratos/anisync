@@ -12,14 +12,11 @@ type Client struct {
 	mal       *mal.Client
 	hb        *hb.Client
 	resources Resources
-
-	Anime *AnimeService
 }
 
 func NewDefaultClient(malAgent string) *Client {
 	c := &Client{mal: mal.NewClient(), hb: hb.NewClient(nil)}
 	c.mal.SetUserAgent(malAgent)
-	c.Anime = &AnimeService{client: c}
 	c.resources = NewResources(mal.NewClient(), malAgent, hb.NewClient(nil))
 	return c
 }
@@ -31,31 +28,6 @@ func NewClient(resources Resources) *Client {
 func (c *Client) VerifyMALCredentials(username, password string) error {
 	return c.resources.Verify(username, password)
 }
-
-type AnimeService struct {
-	client *Client
-}
-
-//func (s *AnimeService) ListMAL(username string) ([]Anime, *http.Response, error) {
-//	list, resp, err := s.client.mal.Anime.List(username)
-//	if err != nil {
-//		return nil, resp.Response, err
-//	}
-//	anime := fromMALEntries(*list)
-//	sort.Sort(ByID(anime))
-//	return anime, resp.Response, nil
-//}
-
-//func (s *AnimeService) ListHB(username string) ([]Anime, *http.Response, error) {
-//	entries, resp, err := s.client.hb.User.Library(username, "")
-//	if err != nil {
-//		return nil, resp, err
-//	}
-//	anime := fromHBEntries(entries)
-//	sort.Sort(ByID(anime))
-//	return anime, resp, nil
-//
-//}
 
 type Anime struct {
 	ID              int

@@ -13,37 +13,6 @@ type Fail struct {
 	Error error
 }
 
-// UpdateMAL gets the difference between the two anime lists and updates the
-// the ones that need updating to MyAnimeList based on the values of the
-// Hummingbird list.
-func (s *AnimeService) UpdateMAL(diff Diff) ([]Fail, error) {
-	var failure error
-	var updf []Fail
-	for _, d := range diff.NeedUpdate {
-		err := s.UpdateMALAnime(d.Anime)
-		if err != nil {
-			failure = fmt.Errorf("failed to update an entry")
-			updf = append(updf, Fail{Anime: d.Anime, Error: err})
-		}
-	}
-	return updf, failure
-}
-
-// AddMAL gets the difference between the two anime lists and adds the missing
-// anime to the MyAnimeList based on the values of the Hummingbird list.
-func (s *AnimeService) AddMAL(diff Diff) ([]Fail, error) {
-	var failure error
-	var addf []Fail
-	for _, d := range diff.Missing {
-		err := s.AddMALAnime(d)
-		if err != nil {
-			failure = fmt.Errorf("failed to add an entry")
-			addf = append(addf, Fail{Anime: d, Error: err})
-		}
-	}
-	return addf, failure
-}
-
 type SyncResult struct {
 	Adds        []AddSuccess
 	AddFails    []AddFail
@@ -113,32 +82,6 @@ func (c *Client) AddMALAnime(a Anime) error {
 		return err
 	}
 	_, err = c.resources.AddMALAnimeEntry(a.ID, e)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *AnimeService) UpdateMALAnime(a Anime) error {
-	e, err := toMALEntry(a)
-	if err != nil {
-		return err
-	}
-	printAnimeUpdate(a, "updating")
-	_, err = s.client.mal.Anime.Update(a.ID, e)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *AnimeService) AddMALAnime(a Anime) error {
-	e, err := toMALEntry(a)
-	if err != nil {
-		return err
-	}
-	printAnimeUpdate(a, "adding")
-	_, err = s.client.mal.Anime.Add(a.ID, e)
 	if err != nil {
 		return err
 	}

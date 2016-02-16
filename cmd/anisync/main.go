@@ -98,7 +98,6 @@ func run() error {
 	if len(diff.Missing) == 0 && len(diff.NeedUpdate) == 0 {
 		fmt.Println("No anime need to be added or updated in your MyAnimeList.")
 		return nil
-
 	}
 
 	fmt.Printf("Proceed with updating and adding missing anime to your MyAnimeList? (y/n) ")
@@ -124,19 +123,19 @@ func run() error {
 	fmt.Println("Verification was successful!")
 	fmt.Println("Starting Update...")
 
-	fails, err := c.Anime.UpdateMAL(*diff)
-	if err != nil {
-		for _, f := range fails {
+	syncResult := c.SyncMALAnime(*diff)
 
-			fmt.Printf("failed to update (%v %v): %v\n", f.Anime.ID, f.Anime.Title, f.Error)
+	fmt.Printf("%d updated, %d newly added.\n", len(syncResult.Adds), len(syncResult.Updates))
+	if len(syncResult.UpdateFails) != 0 {
+		fmt.Println("%d failed to be updated.", len(syncResult.UpdateFails))
+		for i, updf := range syncResult.UpdateFails {
+			fmt.Printf("#%d failed to update (%v %v): %v\n", i+1, updf.Anime.ID, updf.Anime.Title, updf.Error)
 		}
 	}
-
-	fails, err = c.Anime.AddMAL(*diff)
-	if err != nil {
-		for _, f := range fails {
-
-			fmt.Printf("failed to add (%v %v): %v\n", f.Anime.ID, f.Anime.Title, f.Error)
+	if len(syncResult.AddFails) != 0 {
+		fmt.Printf("%d failed to be added.\n", len(syncResult.AddFails))
+		for i, addf := range syncResult.AddFails {
+			fmt.Printf("#%d failed to add (%v %v): %v\n", i+1, addf.Anime.ID, addf.Anime.Title, addf.Error)
 		}
 	}
 
