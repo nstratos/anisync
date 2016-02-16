@@ -3,7 +3,6 @@ package anisync
 import (
 	"fmt"
 	"net/http"
-	"sort"
 	"strconv"
 	"time"
 
@@ -17,7 +16,6 @@ func (c *Client) GetMyAnimeList(username string) ([]Anime, *http.Response, error
 	}
 	// Silently ignoring bad MAL entries if any.
 	anime, _ := fromMALEntries(*list)
-	sort.Sort(ByID(anime))
 	return anime, resp.Response, nil
 }
 

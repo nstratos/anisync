@@ -90,6 +90,11 @@ var compareTests = []struct {
 		Right:    []anisync.Anime{{ID: 1, Title: "Anime1", LastUpdated: &now}},
 		UpToDate: []anisync.Anime{{ID: 1, Title: "Anime1", LastUpdated: &now}},
 	}},
+	{name: "wrong order", Diff: &anisync.Diff{
+		Left:     []anisync.Anime{{ID: 2, Title: "Anime2"}, {ID: 1, Title: "Anime1"}},
+		Right:    []anisync.Anime{{ID: 2, Title: "Anime2"}, {ID: 1, Title: "Anime1"}},
+		UpToDate: []anisync.Anime{{ID: 2, Title: "Anime2"}, {ID: 1, Title: "Anime1"}},
+	}},
 }
 
 func TestCompare(t *testing.T) {

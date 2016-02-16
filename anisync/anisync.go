@@ -43,6 +43,7 @@ type Anime struct {
 }
 
 func FindByID(anime []Anime, id int) *Anime {
+	sort.Sort(ByID(anime))
 	i := sort.Search(len(anime), func(i int) bool { return anime[i].ID >= id })
 	if i < len(anime) && anime[i].ID == id {
 		return &anime[i]

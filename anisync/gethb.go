@@ -2,7 +2,6 @@ package anisync
 
 import (
 	"net/http"
-	"sort"
 
 	"github.com/nstratos/go-hummingbird/hb"
 )
@@ -13,7 +12,6 @@ func (c *Client) GetHBAnimeList(username string) ([]Anime, *http.Response, error
 		return nil, resp, err
 	}
 	anime := fromHBEntries(entries)
-	sort.Sort(ByID(anime))
 	return anime, resp, nil
 }
 
