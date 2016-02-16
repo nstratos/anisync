@@ -157,9 +157,9 @@ func printDiffReport(diff anisync.Diff) {
 	fmt.Println()
 	fmt.Printf("Hummingbird entries: %v\n", len(diff.Right))
 	fmt.Printf("MyAnimelist entries: %v\n", len(diff.Left))
-	fmt.Printf("Up to date: %v\n", len(diff.UpToDate))
-	fmt.Printf("Missing: %v\n", len(diff.Missing))
-	fmt.Printf("Need update: %v\n", len(diff.NeedUpdate))
+	fmt.Printf("(>>>) Up to date: %v\n", len(diff.UpToDate))
+	fmt.Printf("(---) Missing: %v\n", len(diff.Missing))
+	fmt.Printf("(<<<) Need update: %v\n", len(diff.NeedUpdate))
 }
 
 func printAniDiff(d anisync.AniDiff) {
