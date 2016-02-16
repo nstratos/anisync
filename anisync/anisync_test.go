@@ -1,6 +1,7 @@
 package anisync_test
 
 import (
+	"reflect"
 	"testing"
 
 	"bitbucket.org/nstratos/anisync/anisync"
@@ -40,5 +41,15 @@ func TestClient_VerifyMALCredentials_wrongPassword(t *testing.T) {
 	err := client.VerifyMALCredentials("TestUser", "WrongTestPassword")
 	if err == nil {
 		t.Errorf("VerifyMALCredentials with wrong password expected to return err")
+	}
+}
+
+func TestNewDefaultClient(t *testing.T) {
+	c := anisync.NewDefaultClient(defaultUserAgent)
+
+	got := anisync.NewResources(mal.NewClient(), defaultUserAgent, hb.NewClient(nil))
+
+	if want := c.Resources(); !reflect.DeepEqual(got, want) {
+		t.Errorf("NewDefaultClient.Resources() = %q, want %q", got, want)
 	}
 }
