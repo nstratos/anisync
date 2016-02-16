@@ -9,16 +9,13 @@ import (
 )
 
 type Client struct {
-	mal       *mal.Client
-	hb        *hb.Client
 	resources Resources
 }
 
+func (c *Client) Resources() Resources { return c.resources }
+
 func NewDefaultClient(malAgent string) *Client {
-	c := &Client{mal: mal.NewClient(), hb: hb.NewClient(nil)}
-	c.mal.SetUserAgent(malAgent)
-	c.resources = NewResources(mal.NewClient(), malAgent, hb.NewClient(nil))
-	return c
+	return &Client{resources: NewResources(mal.NewClient(), malAgent, hb.NewClient(nil))}
 }
 
 func NewClient(resources Resources) *Client {
