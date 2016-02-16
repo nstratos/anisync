@@ -97,6 +97,9 @@
  .tag-info {
    background: #428bca;
  }
+ .tag-warning {
+   background: #ec8661;
+ }
  input.sidebar-input {
    border: none!important;
    background-color: transparent!important;
