@@ -163,18 +163,18 @@ func printDiffReport(diff anisync.Diff) {
 
 func printAniDiff(d anisync.AniDiff) {
 	if d.Status != nil {
-		fmt.Printf("    Status: got %v, want %v\n", d.Status.Got, d.Status.Want)
+		fmt.Printf("\t\t|-> Status: got %v, want %v\n", d.Status.Got, d.Status.Want)
 	}
 	if d.EpisodesWatched != nil {
-		fmt.Printf("    EpisodesWatched: got %v, want %v\n", d.EpisodesWatched.Got, d.EpisodesWatched.Want)
+		fmt.Printf("\t\t|-> EpisodesWatched: got %v, want %v\n", d.EpisodesWatched.Got, d.EpisodesWatched.Want)
 	}
 	if d.Rating != nil {
-		fmt.Printf("    Rating: got %v, want %v\n", d.Rating.Got, d.Rating.Want)
+		fmt.Printf("\t\t|-> Rating: got %v, want %v\n", d.Rating.Got, d.Rating.Want)
 	}
 	if d.Rewatching != nil {
-		fmt.Printf("    Rewatching: got %v, want %v\n", d.Rewatching.Got, d.Rewatching.Want)
+		fmt.Printf("\t\t|-> Rewatching: got %v, want %v\n", d.Rewatching.Got, d.Rewatching.Want)
 	}
 	if d.LastUpdated != nil {
-		fmt.Printf("    LastUpdated: got %v, want %v\n", d.LastUpdated.Got.Local(), d.LastUpdated.Want.Local())
+		fmt.Printf("\t\t|-> LastUpdated: got %v, want %v\n", d.LastUpdated.Got.Local(), d.LastUpdated.Want.Local())
 	}
 }
