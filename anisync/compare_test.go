@@ -90,6 +90,20 @@ var compareTests = []struct {
 		Right:    []anisync.Anime{{ID: 1, Title: "Anime1", LastUpdated: &now}},
 		UpToDate: []anisync.Anime{{ID: 1, Title: "Anime1", LastUpdated: &now}},
 	}},
+	{name: "UpToDate (no rating)", Diff: &anisync.Diff{
+		Left:     []anisync.Anime{{ID: 1, Title: "Anime1", Rating: "0.0"}},
+		Right:    []anisync.Anime{{ID: 1, Title: "Anime1", Rating: ""}},
+		UpToDate: []anisync.Anime{{ID: 1, Title: "Anime1", Rating: ""}},
+	}},
+	// This case practically can never happen since MAL always sends score 0
+	// and compare is meant to be used with left as MAL and right as HB. But
+	// just in case that compare it is used with left and right reversed, maybe
+	// in the future.
+	{name: "UpToDate (no rating reverse)", Diff: &anisync.Diff{
+		Left:     []anisync.Anime{{ID: 1, Title: "Anime1", Rating: "0.0"}, {ID: 2, Title: "Anime2", Rating: ""}},
+		Right:    []anisync.Anime{{ID: 1, Title: "Anime1", Rating: ""}, {ID: 2, Title: "Anime2", Rating: "0.0"}},
+		UpToDate: []anisync.Anime{{ID: 1, Title: "Anime1", Rating: ""}, {ID: 2, Title: "Anime2", Rating: "0.0"}},
+	}},
 	{name: "wrong order", Diff: &anisync.Diff{
 		Left:     []anisync.Anime{{ID: 2, Title: "Anime2"}, {ID: 1, Title: "Anime1"}},
 		Right:    []anisync.Anime{{ID: 2, Title: "Anime2"}, {ID: 1, Title: "Anime1"}},

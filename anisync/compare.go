@@ -102,8 +102,15 @@ func compare(left, right Anime) (bool, bool, AniDiff) {
 	}
 	if got, want := left.Rating, right.Rating; got != want {
 		//fmt.Printf("->Rating got %v, want %v\n", got, want)
-		diff.Rating = &RatingDiff{got, want}
-		needsUpdate = true
+		// MyAnimeList API always sends score 0 even if the user hasn't entered
+		// a score. So if we get "0.0" but Hummingbird has "" then we skip.
+		// The second (reverse) case practically can never happen especially
+		// since compare is meant to be used with left as MAL and right as HB
+		// but just in case it used in reverse in the future.
+		if !(got == "0.0" && want == "") && !(got == "" && want == "0.0") {
+			diff.Rating = &RatingDiff{got, want}
+			needsUpdate = true
+		}
 	}
 	if got, want := left.Rewatching, right.Rewatching; got != want {
 		//fmt.Printf("->Rewatching got %v, want %v\n", got, want)
