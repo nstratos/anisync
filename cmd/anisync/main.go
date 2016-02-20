@@ -144,19 +144,24 @@ func run() error {
 
 func printDiffReport(diff anisync.Diff) {
 	for _, u := range diff.UpToDate {
-		fmt.Printf(">>> %7v \t%v\n", u.ID, u.Title)
+		fmt.Printf("(===) %7v \t%v\n", u.ID, u.Title)
+	}
+	for _, u := range diff.Uncertain {
+		fmt.Printf("( < ) %7v \t%v\n", u.Anime.ID, u.Anime.Title)
+		printAniDiff(u)
 	}
 	for _, m := range diff.Missing {
-		fmt.Printf("--- %7v \t%v\n", m.ID, m.Title)
+		fmt.Printf("(---) %7v \t%v\n", m.ID, m.Title)
 	}
 	for _, u := range diff.NeedUpdate {
-		fmt.Printf("<<< %7v \t%v\n", u.Anime.ID, u.Anime.Title)
+		fmt.Printf("(<<<) %7v \t%v\n", u.Anime.ID, u.Anime.Title)
 		printAniDiff(u)
 	}
 	fmt.Println()
 	fmt.Printf("Hummingbird entries: %v\n", len(diff.Right))
 	fmt.Printf("MyAnimelist entries: %v\n", len(diff.Left))
-	fmt.Printf("(>>>) Up to date: %v\n", len(diff.UpToDate))
+	fmt.Printf("(===) Up to date: %v\n", len(diff.UpToDate))
+	fmt.Printf("( < ) Okay: %v\n", len(diff.Uncertain))
 	fmt.Printf("(---) Missing: %v\n", len(diff.Missing))
 	fmt.Printf("(<<<) Need update: %v\n", len(diff.NeedUpdate))
 }
