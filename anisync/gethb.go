@@ -26,15 +26,17 @@ func fromHBEntries(list []hb.LibraryEntry) []Anime {
 
 func fromHBEntry(hbe hb.LibraryEntry) Anime {
 	a := Anime{
-		ID:              hbe.Anime.MALID,
-		Title:           hbe.Anime.Title,
 		EpisodesWatched: hbe.EpisodesWatched,
 		Status:          hbe.Status,
 		LastUpdated:     hbe.UpdatedAt,
 		Notes:           hbe.Notes,
 		TimesRewatched:  hbe.RewatchedTimes,
 		Rewatching:      hbe.Rewatching,
-		Image:           hbe.Anime.CoverImage,
+	}
+	if hbe.Anime != nil {
+		a.ID = hbe.Anime.MALID
+		a.Title = hbe.Anime.Title
+		a.Image = hbe.Anime.CoverImage
 	}
 	// rating
 	if hbe.Rating != nil {
