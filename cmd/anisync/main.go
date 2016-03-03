@@ -125,9 +125,9 @@ func run() error {
 
 	syncResult := c.SyncMALAnime(*diff)
 
-	fmt.Printf("%d updated, %d newly added.\n", len(syncResult.Adds), len(syncResult.Updates))
+	fmt.Printf("%d updated, %d newly added.\n", len(syncResult.Updates), len(syncResult.Adds))
 	if len(syncResult.UpdateFails) != 0 {
-		fmt.Println("%d failed to be updated.", len(syncResult.UpdateFails))
+		fmt.Printf("%d failed to be updated.\n", len(syncResult.UpdateFails))
 		for i, updf := range syncResult.UpdateFails {
 			fmt.Printf("#%d failed to update (%v %v): %v\n", i+1, updf.Anime.ID, updf.Anime.Title, updf.Error)
 		}
