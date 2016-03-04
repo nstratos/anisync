@@ -131,12 +131,12 @@ func run() error {
 
 	malist, _, err := c.GetMyAnimeList(*malUsername)
 	if err != nil {
-		return fmt.Errorf("could not get myAnimeList %v", err)
+		return fmt.Errorf("could not get MyAnimeList.net anime list %v", err)
 	}
 
 	hblist, _, err := c.GetHBAnimeList(*hbUsername)
 	if err != nil {
-		return fmt.Errorf("could not get Hummingbird list %v", err)
+		return fmt.Errorf("could not get Hummingbird.me anime list %v", err)
 	}
 
 	diff := anisync.Compare(malist, hblist)
