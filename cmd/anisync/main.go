@@ -144,7 +144,7 @@ func run() error {
 	printDiffReport(*diff)
 
 	if len(diff.Missing) == 0 && len(diff.NeedUpdate) == 0 {
-		fmt.Println("No anime need to be added or updated in your MyAnimeList.")
+		fmt.Printf("No anime need to be added or updated in MyAnimeList.net account %q.\n", *malUsername)
 		return nil
 	}
 
