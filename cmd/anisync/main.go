@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io"
@@ -94,20 +95,35 @@ func run() error {
 		fmt.Fprint(os.Stderr, help)
 		os.Exit(2)
 	}
-	var emptyCredentials = func() bool {
-		if *malUsername == "" || *malPassword == "" || *hbUsername == "" {
-			return true
-		}
-		return false
-	}
-	if emptyCredentials() {
-		*malUsername = os.Getenv("MAL_USERNAME")
-		*malPassword = os.Getenv("MAL_PASSWORD")
+
+	if *hbUsername == "" {
 		*hbUsername = os.Getenv("HB_USERNAME")
-		if emptyCredentials() {
-			flag.Usage()
-			return fmt.Errorf("no credentials were provided")
-		}
+	}
+	if *malUsername == "" {
+		*malUsername = os.Getenv("MAL_USERNAME")
+	}
+	if *malPassword == "" {
+		*malPassword = os.Getenv("MAL_PASSWORD")
+	}
+
+	emptyCredentials := *malUsername == "" || *malPassword == "" || *hbUsername == ""
+	if emptyCredentials && *forceFlag {
+		fmt.Fprintln(os.Stderr, "not all credentials were provided, see anisync -help")
+		os.Exit(2)
+	}
+
+	if *hbUsername == "" && !*forceFlag {
+		sc := bufio.NewScanner(os.Stdin)
+		fmt.Print("Enter Hummingbird.me username: ")
+		sc.Scan()
+		*hbUsername = sc.Text()
+	}
+
+	if *malUsername == "" && !*forceFlag {
+		sc := bufio.NewScanner(os.Stdin)
+		fmt.Print("Enter MyAnimeList.net username: ")
+		sc.Scan()
+		*malUsername = sc.Text()
 	}
 
 	// malAgent is produced by go generate.
