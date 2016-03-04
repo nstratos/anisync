@@ -15,9 +15,11 @@ import (
 //go:generate go run generate/includeagent.go
 
 var (
-	malUsername = flag.String("mal-username", "", "Your MyAnimeList `username`, alternatively set MAL_USERNAME.")
-	malPassword = flag.String("mal-password", "", "Your MyAnimeList `password`, alternatively set MAL_PASSWORD.")
-	hbUsername  = flag.String("hb-username", "", "Your Hummingbird `username`, alternatively set HB_USERNAME.")
+	hbUsername  = flag.String("hbu", "", "Hummingbird.me username (or set HB_USERNAME)")
+	malUsername = flag.String("malu", "", "MyAnimeList.net username (or set MAL_USERNAME)")
+	malPassword = flag.String("malp", "", "MyAnimeList.net password (or set MAL_PASSWORD)")
+	forceFlag   = flag.Bool("f", false, "forces the program to not ask for any user input")
+	helpFlag    = flag.Bool("help", false, "show detailed help message")
 )
 
 func findAnimeInListByID(anime, list []anisync.Anime, w io.Writer) {
@@ -35,24 +37,50 @@ func findAnimeInListByID(anime, list []anisync.Anime, w io.Writer) {
 	fmt.Fprintf(w, "Found %d matches on list out of %d\n", matches, len(list))
 }
 
-const (
-	usageExample1 = `Example 1: anisync -mal-username='AnimeFan' -mal-password='SecurePassword' -hb-username='AnimeFan'`
-	usageExample2 = `Example 2: MAL_USERNAME='AnimeFan' MAL_PASSWORD='SecurePassword' HB_USERNAME='AnimeFan' anisync`
-)
+const help = `anisync: Sync a Hummingbird.me anime list back to MyAnimeList.net.
 
-func customUsage() {
-	fmt.Println("Usage: anisync [OPTION]...")
-	fmt.Println("Sync your myanimelist.net list with your hummingbird.me anime list.")
-	fmt.Println()
+Usage: anisync [options]...
+
+Options:
+
+  -hbu   Hummingbird.me username
+  -malu  MyAnimeList.net username
+  -malp  MyAnimeList.net password
+  -f     forces the program to not ask for any user input
+  -help  show detailed help message
+
+By default, the program will ask for any credentials not provided by the
+options and will ask for confirmation one final time before syncing. This
+behaviour can be disabled with the -f flag but in this case, all the required
+credentials must be made available either through options or environment
+variables.
+
+Examples:
+
+% anisync -hbu='AnimeFan'
+
+  Only the Hummingbird.me username is provided. The program will ask for the
+  MyAnimeList.net username, password and confirmation before syncing.
+
+% anisync -f -hbu='AnimeFan' -malu='AnimeFan' -malp='password'
+
+  All the credentials are provided through options. The program will not ask
+  for confirmation before syncing.
+
+% HB_USERNAME='AnimeFan' MAL_USERNAME='AnimeFan' MAL_PASSWORD='password' anisync
+
+  All the credentials are provided through environment variables. The program
+  will ask for confirmation before syncing.
+
+`
+
+func Usage() {
+	fmt.Fprintln(os.Stderr, "Usage: anisync [options]...")
 	flag.PrintDefaults()
-	fmt.Println()
-	fmt.Println(usageExample1)
-	fmt.Println()
-	fmt.Println(usageExample2)
 }
 
 func main() {
-	flag.Usage = customUsage
+	flag.Usage = Usage
 	flag.Parse()
 
 	if err := run(); err != nil {
@@ -62,6 +90,10 @@ func main() {
 }
 
 func run() error {
+	if *helpFlag {
+		fmt.Fprint(os.Stderr, help)
+		os.Exit(2)
+	}
 	var emptyCredentials = func() bool {
 		if *malUsername == "" || *malPassword == "" || *hbUsername == "" {
 			return true
