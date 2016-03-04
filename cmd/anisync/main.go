@@ -145,7 +145,7 @@ func run() error {
 	proceed := false
 	if !*yesFlag {
 		sc := bufio.NewScanner(os.Stdin)
-		fmt.Printf("Proceed with updating and adding missing anime to MyAnimeList.net account %q? (y/n) ", *malUsername)
+		fmt.Printf("Do you want to continue? [y/N] ")
 		sc.Scan()
 		answer := sc.Text()
 		proceed = strings.HasPrefix(strings.ToLower(answer), "y")
@@ -211,6 +211,8 @@ func printDiffReport(diff anisync.Diff) {
 	fmt.Printf("( < ) Okay: %v\n", len(diff.Uncertain))
 	fmt.Printf("(---) Missing: %v\n", len(diff.Missing))
 	fmt.Printf("(<<<) Need update: %v\n", len(diff.NeedUpdate))
+	fmt.Println("After this operation, there will be:")
+	fmt.Printf("%v updated and %v newly added anime on MyAnimeList.net account %q.\n", len(diff.NeedUpdate), len(diff.Missing), *malUsername)
 }
 
 func printAniDiff(d anisync.AniDiff) {
