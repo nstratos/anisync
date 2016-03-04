@@ -148,25 +148,30 @@ func run() error {
 		return nil
 	}
 
-	fmt.Printf("Proceed with updating and adding missing anime to your MyAnimeList? (y/n) ")
-	var answer string
-	if _, err := fmt.Scanf("%v\n", &answer); err != nil {
-		return err
+	proceed := false
+	if !*forceFlag {
+		sc := bufio.NewScanner(os.Stdin)
+		fmt.Printf("Proceed with updating and adding missing anime to MyAnimeList.net account %q? (y/n) ", *malUsername)
+		sc.Scan()
+		answer := sc.Text()
+		proceed = strings.HasPrefix(strings.ToLower(answer), "y")
+	} else {
+		proceed = true
 	}
-	proceed := strings.HasPrefix(strings.ToLower(answer), "y")
+	// nothing to do
 	if !proceed {
 		return nil
 	}
-	if *malPassword == "" {
 
-		fmt.Printf("Enter MyAnimeList password for user %v:\n", *malUsername)
+	if *malPassword == "" {
+		fmt.Printf("Enter MyAnimeList.net password for username %v:\n", *malUsername)
 		pass := gopass.GetPasswdMasked()
 		*malPassword = string(pass)
 	}
 
 	err = c.VerifyMALCredentials(*malUsername, *malPassword)
 	if err != nil {
-		return fmt.Errorf("could not verify MAL credentials for user %s", *malUsername)
+		return fmt.Errorf("MyAnimeList.net username and password do not match")
 	}
 	fmt.Println("Verification was successful!")
 	fmt.Println("Starting Update...")
