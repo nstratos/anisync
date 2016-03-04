@@ -19,7 +19,7 @@ var (
 	hbUsername  = flag.String("hbu", "", "Hummingbird.me username (or set HB_USERNAME)")
 	malUsername = flag.String("malu", "", "MyAnimeList.net username (or set MAL_USERNAME)")
 	malPassword = flag.String("malp", "", "MyAnimeList.net password (or set MAL_PASSWORD)")
-	forceFlag   = flag.Bool("f", false, "forces the program to not ask for any user input")
+	yesFlag     = flag.Bool("y", false, "answer yes in final confirmation")
 	helpFlag    = flag.Bool("help", false, "show detailed help message")
 )
 
@@ -47,14 +47,14 @@ Options:
   -hbu   Hummingbird.me username
   -malu  MyAnimeList.net username
   -malp  MyAnimeList.net password
-  -f     forces the program to not ask for any user input
+  -y     answer yes in final confirmation
   -help  show detailed help message
 
 By default, the program will ask for any credentials not provided by the
-options and will ask for confirmation one final time before syncing. This
-behaviour can be disabled with the -f flag but in this case, all the required
-credentials must be made available either through options or environment
-variables.
+options and will ask for confirmation one final time before syncing. The -y
+flag is useful in case the program is intended to be used without user
+interaction provided that all the required credentials are  made available
+either through options or environment variables.
 
 Examples:
 
@@ -63,7 +63,7 @@ Examples:
   Only the Hummingbird.me username is provided. The program will ask for the
   MyAnimeList.net username, password and confirmation before syncing.
 
-% anisync -f -hbu='AnimeFan' -malu='AnimeFan' -malp='password'
+% anisync -y -hbu='AnimeFan' -malu='AnimeFan' -malp='password'
 
   All the credentials are provided through options. The program will not ask
   for confirmation before syncing.
@@ -106,20 +106,14 @@ func run() error {
 		*malPassword = os.Getenv("MAL_PASSWORD")
 	}
 
-	emptyCredentials := *malUsername == "" || *malPassword == "" || *hbUsername == ""
-	if emptyCredentials && *forceFlag {
-		fmt.Fprintln(os.Stderr, "not all credentials were provided, see anisync -help")
-		os.Exit(2)
-	}
-
-	if *hbUsername == "" && !*forceFlag {
+	if *hbUsername == "" {
 		sc := bufio.NewScanner(os.Stdin)
 		fmt.Print("Enter Hummingbird.me username: ")
 		sc.Scan()
 		*hbUsername = sc.Text()
 	}
 
-	if *malUsername == "" && !*forceFlag {
+	if *malUsername == "" {
 		sc := bufio.NewScanner(os.Stdin)
 		fmt.Print("Enter MyAnimeList.net username: ")
 		sc.Scan()
@@ -149,7 +143,7 @@ func run() error {
 	}
 
 	proceed := false
-	if !*forceFlag {
+	if !*yesFlag {
 		sc := bufio.NewScanner(os.Stdin)
 		fmt.Printf("Proceed with updating and adding missing anime to MyAnimeList.net account %q? (y/n) ", *malUsername)
 		sc.Scan()
