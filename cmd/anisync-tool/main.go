@@ -13,7 +13,7 @@ import (
 	"bitbucket.org/nstratos/anisync/anisync"
 )
 
-//go:generate go run generate/includeagent.go
+//go:generate go run ../generate/includeagent.go
 
 var (
 	hbUsername  = flag.String("hbu", "", "Hummingbird.me username (or set HB_USERNAME)")

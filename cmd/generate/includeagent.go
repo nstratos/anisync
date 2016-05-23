@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	inFile  = "generate/agent.txt"
+	inFile  = "../generate/agent.txt"
 	outFile = "agent.go"
 )
 
