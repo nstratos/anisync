@@ -38,9 +38,9 @@ func findAnimeInListByID(anime, list []anisync.Anime, w io.Writer) {
 	fmt.Fprintf(w, "Found %d matches on list out of %d\n", matches, len(list))
 }
 
-const help = `anisync: Sync a Hummingbird.me anime list back to MyAnimeList.net.
+const help = `anisync-tool: Sync a Hummingbird.me anime list back to MyAnimeList.net.
 
-Usage: anisync [options]...
+Usage: anisync-tool [options]...
 
 Options:
 
@@ -58,17 +58,17 @@ either through options or environment variables.
 
 Examples:
 
-% anisync -hbu='AnimeFan'
+% anisync-tool -hbu='AnimeFan'
 
   Only the Hummingbird.me username is provided. The program will ask for the
   MyAnimeList.net username, password and confirmation before syncing.
 
-% anisync -y -hbu='AnimeFan' -malu='AnimeFan' -malp='password'
+% anisync-tool -y -hbu='AnimeFan' -malu='AnimeFan' -malp='password'
 
   All the credentials are provided through options. The program will not ask
   for confirmation before syncing.
 
-% HB_USERNAME='AnimeFan' MAL_USERNAME='AnimeFan' MAL_PASSWORD='password' anisync
+% HB_USERNAME='AnimeFan' MAL_USERNAME='AnimeFan' MAL_PASSWORD='password' anisync-tool
 
   All the credentials are provided through environment variables. The program
   will ask for confirmation before syncing.
@@ -76,7 +76,7 @@ Examples:
 `
 
 func Usage() {
-	fmt.Fprintln(os.Stderr, "Usage: anisync [options]...")
+	fmt.Fprintln(os.Stderr, "Usage: anisync-tool [options]...")
 	flag.PrintDefaults()
 }
 
