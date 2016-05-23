@@ -13,7 +13,7 @@ import (
 	"bitbucket.org/nstratos/anisync/onepic"
 )
 
-//go:generate go run generate/includeagent.go
+//go:generate go run ../generate/includeagent.go
 
 const assetsFolder = "ui/"
 
