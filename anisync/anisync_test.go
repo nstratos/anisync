@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"bitbucket.org/nstratos/anisync/anisync"
+	. "bitbucket.org/nstratos/anisync/anisync"
 
 	"github.com/nstratos/go-hummingbird/hb"
 	"github.com/nstratos/go-myanimelist/mal"
@@ -16,7 +16,7 @@ const defaultUserAgent = `
 	Chrome/42.0.2311.90 Safari/537.36`
 
 var (
-	client *anisync.Client
+	client *Client
 )
 
 func init() {
@@ -27,7 +27,7 @@ func init() {
 		NewMALClientStub(mal.NewClient(), defaultUserAgent),
 		NewHBClientStub(hb.NewClient(nil)),
 	}
-	client = anisync.NewClient(resources)
+	client = NewClient(resources)
 }
 
 func TestClient_VerifyMALCredentials(t *testing.T) {
@@ -45,9 +45,9 @@ func TestClient_VerifyMALCredentials_wrongPassword(t *testing.T) {
 }
 
 func TestNewDefaultClient(t *testing.T) {
-	c := anisync.NewDefaultClient(defaultUserAgent)
+	c := NewDefaultClient(defaultUserAgent)
 
-	got := anisync.NewResources(mal.NewClient(), defaultUserAgent, hb.NewClient(nil))
+	got := NewResources(mal.NewClient(), defaultUserAgent, hb.NewClient(nil))
 
 	if want := c.Resources(); !reflect.DeepEqual(got, want) {
 		t.Errorf("NewDefaultClient.Resources() = %q, want %q", got, want)
