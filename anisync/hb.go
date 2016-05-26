@@ -14,7 +14,7 @@ type HBClient struct {
 
 // NewHBClient creates a new Hummingbird client.
 func NewHBClient(client *hb.Client) *HBClient {
-	return &HBClient{client: hb.NewClient(nil)}
+	return &HBClient{client: client}
 }
 
 func (c *HBClient) HBAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error) {

@@ -11,7 +11,7 @@ type MALClientStub struct {
 }
 
 func NewMALClientStub(malClient *mal.Client, malAgent string) *MALClientStub {
-	c := &MALClientStub{client: mal.NewClient()}
+	c := &MALClientStub{client: mal.NewClient(nil)}
 	c.client.SetUserAgent(malAgent)
 	return c
 }

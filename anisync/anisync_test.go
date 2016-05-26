@@ -24,7 +24,7 @@ func init() {
 		*MALClientStub
 		*HBClientStub
 	}{
-		NewMALClientStub(mal.NewClient(), defaultUserAgent),
+		NewMALClientStub(mal.NewClient(nil), defaultUserAgent),
 		NewHBClientStub(hb.NewClient(nil)),
 	}
 	client = NewClient(resources)
@@ -47,7 +47,7 @@ func TestClient_VerifyMALCredentials_wrongPassword(t *testing.T) {
 func TestNewDefaultClient(t *testing.T) {
 	c := NewDefaultClient(defaultUserAgent)
 
-	got := NewResources(mal.NewClient(), defaultUserAgent, hb.NewClient(nil))
+	got := NewResources(mal.NewClient(nil), defaultUserAgent, hb.NewClient(nil))
 
 	if want := c.Resources(); !reflect.DeepEqual(got, want) {
 		t.Errorf("NewDefaultClient.Resources() = %q, want %q", got, want)

@@ -11,7 +11,7 @@ type MALClient struct {
 // NewMALClient creates a new MyAnimeList client that uses malAgent as user
 // agent to communicate with the MyAnimeList.net API.
 func NewMALClient(client *mal.Client, malAgent string) *MALClient {
-	c := &MALClient{client: mal.NewClient()}
+	c := &MALClient{client: client}
 	c.client.SetUserAgent(malAgent)
 	return c
 }
