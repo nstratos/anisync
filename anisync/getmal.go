@@ -12,7 +12,10 @@ import (
 func (c *Client) GetMyAnimeList(username string) ([]Anime, *http.Response, error) {
 	list, resp, err := c.resources.MyAnimeList(username)
 	if err != nil {
-		return nil, resp.Response, err
+		if resp != nil {
+			return nil, resp.Response, err
+		}
+		return nil, nil, err
 	}
 	// Silently ignoring bad MAL entries if any.
 	anime, _ := fromMALEntries(*list)
