@@ -216,7 +216,16 @@ func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
 
 	diff := anisync.Compare(malist, hblist)
 
-	bytes, err := json.Marshal(diff)
+	// Including MyAnimeList account username in mock response.
+	resp := struct {
+		MalUsername string
+		*anisync.Diff
+	}{
+		malu,
+		diff,
+	}
+
+	bytes, err := json.Marshal(resp)
 	if err != nil {
 		return &appErr{err, "could not marshal diff", http.StatusInternalServerError}
 	}
