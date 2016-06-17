@@ -41,11 +41,11 @@ type App struct {
 
 type appErr struct {
 	err     error
-	Message string `json:"message"`
-	Code    int    `json:"code"`
+	Message string
+	Status  int
 }
 
-func (e *appErr) Error() string { return fmt.Sprintf("%d %v: %v", e.Code, e.Message, e.err.Error()) }
+func (e *appErr) Error() string { return fmt.Sprintf("%d %v: %v", e.Status, e.Message, e.err.Error()) }
 
 type appHandler func(http.ResponseWriter, *http.Request) error
 
@@ -54,7 +54,7 @@ func (fn appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := fn(w, r); err != nil {
 		if e, ok := err.(*appErr); ok {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(e.Code)
+			w.WriteHeader(e.Status)
 			if err := json.NewEncoder(w).Encode(e); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
