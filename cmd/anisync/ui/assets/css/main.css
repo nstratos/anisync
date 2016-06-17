@@ -178,6 +178,26 @@
    background: #4b5360;
    text-decoration: none;
  }
+ button.statusbar-button {
+   background: #91D357;
+   border: none;
+   color: #fff;
+   letter-spacing: 0.05em;
+   text-transform: uppercase;
+   -webkit-transition: background-color 0.3s;
+   transition: background-color 0.3s;
+ }
+ button.statusbar-button:hover,
+ button.statusbar-button:focus {
+   background: #b3e982;
+   outline: 0;
+   text-decoration: none;
+ }
+ button.statusbar-button:active {
+   border: none;
+   background: #cff3af;
+   text-decoration: none;
+ }
  @media (min-width: 48em) {
    .content {
      padding: 2em 3em 0;
