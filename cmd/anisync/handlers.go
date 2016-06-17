@@ -97,7 +97,16 @@ func (app *App) handleCheck(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	bytes, err := json.Marshal(diff)
+	// Including MyAnimeList account username in response.
+	resp := struct {
+		MalUsername string
+		*anisync.Diff
+	}{
+		malUsername,
+		diff,
+	}
+
+	bytes, err := json.Marshal(resp)
 	if err != nil {
 		return &appErr{err, "could not marshal diff", http.StatusInternalServerError}
 	}
