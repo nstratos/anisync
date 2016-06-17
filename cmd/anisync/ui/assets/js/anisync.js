@@ -5,7 +5,7 @@ var anisyncServices = angular.module('anisyncServices', ['ngResource']);
 anisyncServices.factory('Anisync', ['$resource',
   function($resource) {
     return {
-      Check: $resource('api/check', {}, {
+      Check: $resource('api/test/check', {}, {
         query: {
           method: 'GET',
           params: {}
@@ -59,6 +59,9 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
       $scope.loading = true;
       Anisync.Check.query(req).$promise.then(function(data) {
         $scope.checkResp = data;
+        $scope.statusBar = makeStatusBar(data);
+        console.log(data);
+        console.log($scope);
       }).finally(function() {
         $scope.progressbar.complete();
         $scope.loading = false;
@@ -77,3 +80,30 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
     }
   }
 ]);
+
+function makeStatusBar(data) {
+  var statusBar = {
+    message: "",
+    visible: true,
+    next: true,
+    askMessage: "Sync",
+    type: "info"
+  };
+  statusBar.message = "After syncing, there will be:\n"
+  if (data.Missing && data.NeedUpdate) {
+    statusBar.message += data.NeedUpdate.length + " updated and " + data.Missing.length + " newly added ";
+  }
+  if (data.Missing && !data.NeedUpdate) {
+    statusBar.message += data.Missing.length + " newly added ";
+  }
+  if (!data.Missing && data.NeedUpdate) {
+    statusBar.message += data.NeedUpdate.length + " updated ";
+  }
+  statusBar.message += "anime on MyAnimeList.net account \"" + data.MalUsername + "\".";
+  if (!data.Missing && !data.NeedUpdate) {
+    statusBar.message = "Everything is in sync!";
+    statusBar.type = "success";
+    statusBar.next = false;
+  }
+  return statusBar;
+}
