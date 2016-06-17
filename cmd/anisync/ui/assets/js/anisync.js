@@ -60,6 +60,7 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
     $scope.progressbar = ngProgressFactory.createInstance();
     $scope.progressbar.setColor('#ec8661');
     $scope.check = function(req) {
+      if ($scope.statusBar) $scope.statusBar.visible = false;
       $scope.checkResp = {};
       $scope.progressbar.start();
       $scope.loading = true;

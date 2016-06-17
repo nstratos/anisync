@@ -1,13 +1,13 @@
-<div class="pure-g" ng-if="statusBar.next">
-  <div class="status status-{{statusBar.type}} pure-u-21-24" ng-show="statusBar.visible">
+<div class="pure-g" ng-if="statusBar.next" ng-show="statusBar.visible">
+  <div class="status status-{{statusBar.type}} pure-u-21-24">
     <span>{{statusBar.message}}</span>
   </div>
-  <button  class="statusbar-button pure-u-3-24">
+  <button class="statusbar-button pure-u-3-24">
     <ng-md-icon icon="navigate_next" size="40" style="fill: #fff"></ng-md-icon>
   </button>
 </div>
-<div class="pure-g" ng-if="!statusBar.next">
-  <div class="status status-{{statusBar.type}} pure-u-1" ng-show="statusBar.visible">
+<div class="pure-g" ng-if="!statusBar.next" ng-show="statusBar.visible">
+  <div class="status status-{{statusBar.type}} pure-u-1">
     <span>{{statusBar.message}}</span>
   </div>
 </div>
