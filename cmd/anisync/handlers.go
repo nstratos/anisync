@@ -29,8 +29,8 @@ func init() {
 	// API handlers
 	http.Handle("/api/check", appHandler(app.handleCheck))
 	http.Handle("/api/sync", appHandler(app.handleSync))
-	http.Handle("/api/test/check", appHandler(app.handleTestCheck))
-	http.Handle("/api/test/sync", appHandler(app.handleTestSync))
+	http.Handle("/api/mock/check", appHandler(app.handleTestCheck))
+	http.Handle("/api/mock/sync", appHandler(app.handleTestSync))
 	http.Handle("/api/mal/verify", appHandler(app.handleMALVerify))
 }
 

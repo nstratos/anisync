@@ -4,18 +4,24 @@ var anisyncServices = angular.module('anisyncServices', ['ngResource']);
 
 anisyncServices.factory('Anisync', ['$resource',
   function($resource) {
+    var checkURL = 'api/check';
+    var syncURL = 'api/sync';
+    if (window.location.search == "?testbed") {
+      checkURL = 'api/mock/check';
+      syncURL = 'api/mock/sync';
+    }
     return {
-      Check: $resource('api/test/check', {}, {
+      Check: $resource(checkURL, {}, {
         query: {
           method: 'GET',
           params: {}
-        }
+        },
       }),
-      Sync: $resource('api/sync', {}, {
+      Sync: $resource(syncURL, {}, {
         query: {
           method: 'POST',
           params: {}
-        }
+        },
       })
     }
   }
