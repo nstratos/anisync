@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
@@ -105,29 +106,31 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
+func getOnePic(animeName string) string {
+	url, err := onepic.Search(animeName)
+	if err != nil {
+		log.Println("onepic:", err)
+		return "/static/assets/img/placeholder_100x145.png"
+	}
+	return url
+}
+
+func test1() ([]anisync.Anime, []anisync.Anime) {
+
 	now := time.Now()
 	before := now.AddDate(0, 0, -1)
 	anime1 := "Death parade"
-	anime1Pic, err := onepic.Search(anime1)
-	if err != nil {
-		return err
-	}
+	anime1Pic := getOnePic(anime1)
+
 	anime2 := "Ore monogatari"
-	anime2Pic, err := onepic.Search(anime2)
-	if err != nil {
-		return err
-	}
+	anime2Pic := getOnePic(anime2)
+
 	anime3 := "Shingeki no Kyojin"
-	anime3Pic, err := onepic.Search(anime3)
-	if err != nil {
-		return err
-	}
+	anime3Pic := getOnePic(anime3)
+
 	anime4 := "Kuroko no basuke"
-	anime4Pic, err := onepic.Search(anime4)
-	if err != nil {
-		return err
-	}
+	anime4Pic := getOnePic(anime4)
+
 	malist := []anisync.Anime{
 		{
 			ID:              1,
@@ -193,6 +196,22 @@ func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
 			EpisodesWatched: 6,
 			Rewatching:      true,
 		},
+	}
+
+	return malist, hblist
+}
+
+func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
+	hbu := r.FormValue("hbUsername")
+	malu := r.FormValue("malUsername")
+
+	var malist, hblist []anisync.Anime
+	switch {
+	case hbu == "test1" && hbu == malu:
+		malist, hblist = test1()
+	default:
+		err := fmt.Errorf("Username or password is incorrect")
+		return &appErr{err, err.Error(), http.StatusUnauthorized}
 	}
 
 	diff := anisync.Compare(malist, hblist)
