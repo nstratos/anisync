@@ -68,8 +68,9 @@ func (fn appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, error) {
 	malist, resp, err := c.GetMyAnimeList(malUsername)
 	if err != nil {
-		if resp.StatusCode == http.StatusNotFound {
-			return nil, &appErr{err, fmt.Sprintf("could not get MyAnimeList for user %v", malUsername), http.StatusNotFound}
+		// MAL sends 200 on invalid username
+		if err.Error() == "Invalid username" {
+			return nil, &appErr{err, fmt.Sprintf("Could not get MyAnimeList for user '%v'. User does not exist.", malUsername), http.StatusNotFound}
 		}
 		return nil, &appErr{err, "could not get MyAnimeList", resp.StatusCode}
 	}
@@ -77,7 +78,7 @@ func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, 
 	hblist, resp, err := c.GetHBAnimeList(hbUsername)
 	if err != nil {
 		if resp.StatusCode == http.StatusNotFound {
-			return nil, &appErr{err, fmt.Sprintf("could not get Hummingbird list for user %v", hbUsername), http.StatusNotFound}
+			return nil, &appErr{err, fmt.Sprintf("Could not get Hummingbird list for user '%v'. User does not exist.", hbUsername), http.StatusNotFound}
 		}
 		return nil, &appErr{err, "could not get Hummingbird list", resp.StatusCode}
 	}
