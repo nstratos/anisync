@@ -210,7 +210,7 @@ func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
 	case hbu == "test1" && hbu == malu:
 		malist, hblist = test1()
 	default:
-		err := fmt.Errorf("Username or password is incorrect")
+		err := fmt.Errorf("Accounts do not match or unknown test.")
 		return &appErr{err, err.Error(), http.StatusUnauthorized}
 	}
 
