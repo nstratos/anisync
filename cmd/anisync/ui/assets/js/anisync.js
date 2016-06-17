@@ -66,8 +66,8 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
       Anisync.Check.query(req).$promise.then(function(data) {
         $scope.checkResp = data;
         $scope.statusBar = makeStatusBar(data);
-        console.log(data);
-        console.log($scope);
+      }, function(error) {
+        $scope.statusBar = makeStatusBarError(error);
       }).finally(function() {
         $scope.progressbar.complete();
         $scope.loading = false;
@@ -87,6 +87,18 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
   }
 ]);
 
+function makeStatusBarError(error) {
+  var statusBar = {
+    message: "",
+    visible: true,
+    next: false,
+    askMessage: "",
+    type: "danger"
+  };
+  statusBar.message = error.data.Message;
+  return statusBar;
+}
+
 function makeStatusBar(data) {
   var statusBar = {
     message: "",
@@ -95,6 +107,7 @@ function makeStatusBar(data) {
     askMessage: "Sync",
     type: "info"
   };
+  // create status message
   statusBar.message = "After syncing, there will be:\n"
   if (data.Missing && data.NeedUpdate) {
     statusBar.message += data.NeedUpdate.length + " updated and " + data.Missing.length + " newly added ";

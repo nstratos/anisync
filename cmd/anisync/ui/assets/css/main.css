@@ -108,6 +108,9 @@
  .status-info {
    background: #428bca;
  }
+ .status-danger {
+   background: #d2567e;
+ }
  input.sidebar-input {
    border: none!important;
    background-color: transparent!important;
