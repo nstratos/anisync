@@ -31,21 +31,36 @@ anisyncServices.factory('Sync', ['$resource', ]);
 
 var anisyncControllers = angular.module('anisyncControllers', []);
 
-anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFactory',
-  function($scope, Anisync, ngProgressFactory) {
-    $scope.switchToggle = function() {
-      $scope.switchOn = !$scope.switchOn;
+anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFactory', '$window', '$timeout',
 
-      if ($scope.switchOn == false) {
-        $scope.mainForm.$setValidity("ngRemoteValidate", undefined);
-        $scope.mainForm.malPassword.$setValidity("ngRemoteValidate", undefined);
-        $scope.mainForm.$pending = false;
-      }
-      if ($scope.switchOn == true) {
-        $scope.mainForm.malPassword.$setPristine();
-        $scope.mainForm.malPassword.$setUntouched();
-        angular.element(document.querySelector('#malPasswordInput')).val("");
-        angular.element(document.querySelector('#syncButton')).attr("disabled", "disabled");
+  function($scope, Anisync, ngProgressFactory, $window, $timeout) {
+    // clickNext
+    $scope.clickNext = function() {
+      $scope.switchOn = true;
+      $scope.turnSwitchOn();
+      $timeout(function() {
+        $window.document.getElementById("malPasswordInput").focus();
+      });
+    };
+    // turnSwitchOn
+    $scope.turnSwitchOn = function() {
+      $scope.mainForm.malPassword.$setPristine();
+      $scope.mainForm.malPassword.$setUntouched();
+      angular.element(document.querySelector('#malPasswordInput')).val("");
+      angular.element(document.querySelector('#syncButton')).attr("disabled", "disabled");
+    };
+    // turnSwitchOff
+    $scope.turnSwitchOff = function() {
+      $scope.mainForm.$setValidity("ngRemoteValidate", undefined);
+      $scope.mainForm.malPassword.$setValidity("ngRemoteValidate", undefined);
+      $scope.mainForm.$pending = false;
+    };
+    // updateSwitch
+    $scope.updateSwitch = function() {
+      if ($scope.switchOn) {
+        $scope.turnSwitchOn();
+      } else {
+        $scope.turnSwitchOff();
       }
     };
     // Modifying ngRemoteValidate for malPassword field so that it

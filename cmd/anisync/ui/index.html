@@ -30,7 +30,7 @@
 
         <form name="mainForm" class="pure-form pure-form-stacked main-form">
           <label class="switch-light switch-android switch-mod">
-            <input type="checkbox" ng-click="switchToggle()">
+            <input type="checkbox" ng-model="switchOn" ng-change="updateSwitch()">
             <span>
 	          <span>Sync Off</span>
             <span>Sync On</span>
