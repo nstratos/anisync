@@ -72,7 +72,7 @@ func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, 
 		if err.Error() == "Invalid username" {
 			return nil, &appErr{err, fmt.Sprintf("Could not get MyAnimeList for user '%v'. User does not exist.", malUsername), http.StatusNotFound}
 		}
-		return nil, &appErr{err, "could not get MyAnimeList", resp.StatusCode}
+		return nil, &appErr{err, fmt.Sprintf("Could not get MyAnimeList: %v", err), resp.StatusCode}
 	}
 
 	hblist, resp, err := c.GetHBAnimeList(hbUsername)
@@ -80,7 +80,7 @@ func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, 
 		if resp.StatusCode == http.StatusNotFound {
 			return nil, &appErr{err, fmt.Sprintf("Could not get Hummingbird list for user '%v'. User does not exist.", hbUsername), http.StatusNotFound}
 		}
-		return nil, &appErr{err, "could not get Hummingbird list", resp.StatusCode}
+		return nil, &appErr{err, fmt.Sprintf("Could not get Hummingbird list: %v", err), resp.StatusCode}
 	}
 	diff := anisync.Compare(malist, hblist)
 
