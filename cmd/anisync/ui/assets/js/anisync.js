@@ -76,6 +76,7 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
     $scope.progressbar.setColor('#ec8661');
     $scope.check = function(req) {
       if ($scope.statusBar) $scope.statusBar.visible = false;
+      $scope.statusBar = {};
       $scope.checkResp = {};
       $scope.progressbar.start();
       $scope.loading = true;
@@ -90,11 +91,16 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
       });
     }
     $scope.sync = function(req) {
-      $scope.syncResp = {};
+      $scope.statusBar = {};
+      $scope.checkResp = {};
       $scope.progressbar.start();
       $scope.loading = true;
       Anisync.Sync.query(req).$promise.then(function(data) {
-        $scope.syncResp = data;
+        $scope.checkResp = data;
+        //$scope.syncResp = data;
+        $scope.statusBar = makeStatusBarSync(data);
+      }, function(error){
+        $scope.statusBar = makeStatusBarError(error);
       }).finally(function() {
         $scope.progressbar.complete();
         $scope.loading = false;
@@ -111,10 +117,47 @@ function makeStatusBarError(error) {
     askMessage: "",
     type: "danger"
   };
+  if (!error) {
+	  statusBar.message = "Aw, Snap! Something went horribly wrong.";
+	  return statusBar;
+  }
   statusBar.message = error.data.Message;
   return statusBar;
 }
 
+function makeStatusBarSync(data) {
+  var statusBar = {
+    message: "",
+    visible: true,
+    next: true,
+    askMessage: "Sync",
+    type: "success"
+  };
+  statusBar.message += "MyAnimeList.net account \"" + data.MalUsername + "\" just had:\n";
+
+  if (data.Sync.Adds && data.Sync.Updates) {
+    statusBar.message += data.Sync.Updates.length + " updated and " + data.Sync.Adds.length + " newly added anime.";
+  }
+  if (data.Sync.Adds && !data.Sync.Updates) {
+    statusBar.message += data.Sync.Adds.length + " newly added anime.";
+  }
+  if (!data.Sync.Adds && data.Sync.Updates) {
+    statusBar.message += data.Sync.Updates.length + " updated anime.";
+  }
+  if (data.Sync.AddFails || data.Sync.UpdateFails) {
+    statusBar.type= "error";
+  }
+  if (data.Sync.AddFails && data.Sync.UpdateFails) {
+    statusBar.message += " However " + data.Sync.UpdateFails.length +
+	    " failed to update and " + data.Sync.AddFails.length + " failed to be added.";
+  }
+  if (!data.Sync.AddFails && data.Sync.UpdateFails) {
+    statusBar.message += " However " + data.Sync.UpdateFails.length + " failed to update.";
+  }
+  if (data.Sync.AddFails && !data.Sync.UpdateFails) {
+    statusBar.message += " However " + data.Sync.AddFails.length + " failed to be added.";
+  }
+}
 function makeStatusBar(data) {
   var statusBar = {
     message: "",

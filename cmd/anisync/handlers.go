@@ -143,7 +143,23 @@ func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 
 	syncResp := c.SyncMALAnime(*diff)
 
-	bytes, err := json.Marshal(syncResp)
+	diff, err = getDiff(c, t.MALUsername, t.HBUsername)
+	if err != nil {
+		return err
+	}
+
+	// Including MyAnimeList account username in response.
+	resp := struct {
+		MalUsername string
+		Sync        *anisync.SyncResult
+		*anisync.Diff
+	}{
+		t.MALUsername,
+		syncResp,
+		diff,
+	}
+
+	bytes, err := json.Marshal(resp)
 	if err != nil {
 		return &appErr{err, "could not marshal sync response", http.StatusInternalServerError}
 	}
