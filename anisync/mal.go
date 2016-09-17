@@ -16,10 +16,9 @@ func NewMALClient(client *mal.Client, malAgent string) *MALClient {
 	return c
 }
 
-func (c *MALClient) Verify(username, password string) error {
+func (c *MALClient) Verify(username, password string) (*mal.User, *mal.Response, error) {
 	c.client.SetCredentials(username, password)
-	_, _, err := c.client.Account.Verify()
-	return err
+	return c.client.Account.Verify()
 }
 
 // MyAnimeList returns the anime list of a user.

@@ -1,6 +1,7 @@
 package anisync
 
 import (
+	"net/http"
 	"sort"
 	"time"
 
@@ -22,8 +23,12 @@ func NewClient(resources Resources) *Client {
 	return &Client{resources: resources}
 }
 
-func (c *Client) VerifyMALCredentials(username, password string) error {
-	return c.resources.Verify(username, password)
+func (c *Client) VerifyMALCredentials(username, password string) (*mal.User, *http.Response, error) {
+	u, resp, err := c.resources.Verify(username, password)
+	if resp == nil {
+		return u, nil, err
+	}
+	return u, resp.Response, err
 }
 
 type Anime struct {

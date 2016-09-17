@@ -7,7 +7,7 @@ import (
 )
 
 // HBClient is a Hummingbird client that contains implementations for all the
-// operations that we need from the Hummingbird.met API.
+// operations that we need from the Hummingbird.me API.
 type HBClient struct {
 	client *hb.Client
 }

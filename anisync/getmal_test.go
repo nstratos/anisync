@@ -76,6 +76,8 @@ func (c *MALClientStub) MyAnimeList(username string) (*mal.AnimeList, *mal.Respo
 		}
 		resp := &mal.Response{Body: []byte{}, Response: &http.Response{}}
 		return animeList, resp, nil
+	case username == "TestNoResponse":
+		return nil, nil, fmt.Errorf("no response from test myanimelist server")
 	default:
 		animeList := &mal.AnimeList{Error: "Invalid username"}
 		resp := &mal.Response{Body: []byte{}, Response: &http.Response{}}
@@ -112,6 +114,16 @@ func TestClient_GetMyAnimeList_invalidUsername(t *testing.T) {
 	_, _, err := client.GetMyAnimeList("InvalidTestUser")
 	if err == nil {
 		t.Errorf("GetMyAnimeList for invalid user expected to return err")
+	}
+}
+
+func TestClient_GetMyAnimeList_noResponse(t *testing.T) {
+	_, resp, err := client.GetMyAnimeList("TestNoResponse")
+	if err == nil {
+		t.Error("GetMyAnimeList for no response expected to return err")
+	}
+	if resp != nil {
+		t.Error("GetMyAnimeList for no response resp = %q, want %q", resp, nil)
 	}
 }
 
