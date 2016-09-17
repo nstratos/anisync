@@ -1,6 +1,7 @@
 <div class="pure-g" ng-if="statusBar.next" ng-show="statusBar.visible">
   <div class="status status-{{statusBar.type}} pure-u-21-24">
     <span>{{statusBar.message}}</span>
+    <span ng-if="statusBar.cause">Reason: "{{statusBar.cause}}"</span>
   </div>
   <button class="statusbar-button pure-u-3-24" ng-click="clickNext()">
     <ng-md-icon icon="navigate_next" size="40" style="fill: #fff"></ng-md-icon>
@@ -9,5 +10,6 @@
 <div class="pure-g" ng-if="!statusBar.next" ng-show="statusBar.visible">
   <div class="status status-{{statusBar.type}} pure-u-1">
     <span>{{statusBar.message}}</span>
+    <span ng-if="statusBar.cause">Reason: "{{statusBar.cause}}"</span>
   </div>
 </div>

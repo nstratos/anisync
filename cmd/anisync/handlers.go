@@ -40,47 +40,111 @@ type App struct {
 }
 
 type appErr struct {
-	err     error
-	Message string
-	Status  int
+	err        error
+	Message    string
+	Cause      string
+	StatusCode int
 }
 
-func (e *appErr) Error() string { return fmt.Sprintf("%d %v: %v", e.Status, e.Message, e.err.Error()) }
+func (e *appErr) Error() string {
+	return fmt.Sprintf("%d %v: %v", e.StatusCode, e.Message, e.err.Error())
+}
+
+func NewAppError(err error, message string, statusCode int) *appErr {
+	return &appErr{err: err, Message: message, Cause: err.Error(), StatusCode: statusCode}
+}
+
+type remoteErr struct {
+	*appErr
+	RemoteResponse *remoteResponse
+}
+
+type remoteResponse struct {
+	StatusCode int
+	Request    remoteRequest
+}
+
+type remoteRequest struct {
+	Method string
+	URL    string
+}
+
+func (e *remoteErr) Error() string {
+	if e.RemoteResponse == nil {
+		return fmt.Sprintf("%d %v: %v (No remote response)", e.StatusCode, e.Message, e.err.Error())
+	}
+	return fmt.Sprintf("%d %v: %v (Remote response: %d %v %v)",
+		e.StatusCode,
+		e.Message,
+		e.err.Error(),
+		e.RemoteResponse.StatusCode,
+		e.RemoteResponse.Request.Method,
+		e.RemoteResponse.Request.URL)
+}
+
+func newRemoteError(resp *http.Response, err error, message string, statusCode int) error {
+	rerr := &remoteErr{appErr: NewAppError(err, message, statusCode)}
+	if resp == nil {
+		return rerr
+	}
+	rerr.RemoteResponse = &remoteResponse{
+		StatusCode: resp.StatusCode,
+		Request: remoteRequest{
+			Method: resp.Request.Method,
+			URL:    resp.Request.URL.String(),
+		},
+	}
+	return rerr
+}
+
+type malErr remoteErr
+
+func NewMALError(resp *http.Response, err error, message string, status int) error {
+	return newRemoteError(resp, err, message, status)
+}
+
+type hbErr remoteErr
+
+func NewHBError(resp *http.Response, err error, message string, status int) error {
+	return newRemoteError(resp, err, message, status)
+}
 
 type appHandler func(http.ResponseWriter, *http.Request) error
 
 func (fn appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	if err := fn(w, r); err != nil {
-		if e, ok := err.(*appErr); ok {
-			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(e.Status)
-			if err := json.NewEncoder(w).Encode(e); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-			}
-		} else {
+		switch e := err.(type) {
+		case *appErr:
+			w.WriteHeader(e.StatusCode)
+			writeJSON(w, e)
+		case *remoteErr:
+			w.WriteHeader(e.StatusCode)
+			writeJSON(w, e)
+		default:
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
 	log.Printf("%s\t%s\t%s", r.Method, r.RequestURI, time.Since(start))
 }
 
+func writeJSON(w http.ResponseWriter, data interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+}
+
 func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, error) {
 	malist, resp, err := c.GetMyAnimeList(malUsername)
 	if err != nil {
-		// MAL sends 200 on invalid username
-		if err.Error() == "Invalid username" {
-			return nil, &appErr{err, fmt.Sprintf("Could not get MyAnimeList for user '%v'. User does not exist.", malUsername), http.StatusNotFound}
-		}
-		return nil, &appErr{err, fmt.Sprintf("Could not get MyAnimeList: %v", err), resp.StatusCode}
+		return nil, NewMALError(resp, err, "Could not get MyAnimeList to compare.", http.StatusConflict)
 	}
 
 	hblist, resp, err := c.GetHBAnimeList(hbUsername)
 	if err != nil {
-		if resp.StatusCode == http.StatusNotFound {
-			return nil, &appErr{err, fmt.Sprintf("Could not get Hummingbird list for user '%v'. User does not exist.", hbUsername), http.StatusNotFound}
-		}
-		return nil, &appErr{err, fmt.Sprintf("Could not get Hummingbird list: %v", err), resp.StatusCode}
+		return nil, NewHBError(resp, err, "Could not get Hummingbird list to compare.", http.StatusConflict)
 	}
 	diff := anisync.Compare(malist, hblist)
 
@@ -109,7 +173,7 @@ func (app *App) handleCheck(w http.ResponseWriter, r *http.Request) error {
 
 	bytes, err := json.Marshal(resp)
 	if err != nil {
-		return &appErr{err, "could not marshal diff", http.StatusInternalServerError}
+		return NewAppError(err, "Check: Could not encode list difference.", http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -126,7 +190,7 @@ func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		return &appErr{nil, "sync: could not decode body", http.StatusBadRequest}
+		return NewAppError(err, "Sync: Could not decode request.", http.StatusBadRequest)
 	}
 
 	c := newAnisyncClient(app.httpClient, app.malAgent, r)
@@ -136,9 +200,8 @@ func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
-	if err != nil {
-		return &appErr{err, "could not verify MAL credentials", http.StatusUnauthorized}
+	if _, resp, err := c.VerifyMALCredentials(t.MALUsername, t.MALPassword); err != nil {
+		return NewMALError(resp, err, "Sync: Could not verify MAL credentials.", http.StatusUnauthorized)
 	}
 
 	syncResp := c.SyncMALAnime(*diff)
@@ -161,7 +224,7 @@ func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 
 	bytes, err := json.Marshal(resp)
 	if err != nil {
-		return &appErr{err, "could not marshal sync response", http.StatusInternalServerError}
+		return NewAppError(err, "Sync: Could not encode response.", http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -198,8 +261,7 @@ func (app *App) handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-
-		return &appErr{nil, "verify: could not decode body", http.StatusInternalServerError}
+		return NewAppError(nil, "Verify: Could not decode request.", http.StatusBadRequest)
 	}
 
 	// Asking MAL for verification of username and password and returning
@@ -214,7 +276,7 @@ func (app *App) handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 
 	c := newAnisyncClient(app.httpClient, app.malAgent, r)
 
-	err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
+	_, _, err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
 	if err == nil {
 		res.IsValid = true
 	}
@@ -222,7 +284,7 @@ func (app *App) handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		return &appErr{nil, "verify: could not encode response", http.StatusInternalServerError}
+		return NewAppError(err, "Verify: Could not encode response.", http.StatusInternalServerError)
 	}
 
 	return nil

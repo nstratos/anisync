@@ -112,6 +112,7 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
 function makeStatusBarError(error) {
   var statusBar = {
     message: "",
+    cause: "",
     visible: true,
     next: false,
     askMessage: "",
@@ -122,6 +123,7 @@ function makeStatusBarError(error) {
 	  return statusBar;
   }
   statusBar.message = error.data.Message;
+  statusBar.cause = error.data.Cause;
   return statusBar;
 }
 
@@ -158,6 +160,7 @@ function makeStatusBarSync(data) {
     statusBar.message += " However " + data.Sync.AddFails.length + " failed to be added.";
   }
 }
+
 function makeStatusBar(data) {
   var statusBar = {
     message: "",

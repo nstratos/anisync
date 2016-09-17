@@ -59,7 +59,7 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		return &appErr{nil, "sync: could not decode body", http.StatusBadRequest}
+		return NewAppError(err, "Test sync: could not decode body.", http.StatusBadRequest)
 	}
 
 	c := newAnisyncClient(app.httpClient, app.malAgent, r)
@@ -97,7 +97,7 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 
 	bytes, err := json.Marshal(report)
 	if err != nil {
-		return &appErr{err, "could not marshal failures", http.StatusInternalServerError}
+		return NewAppError(err, "Test sync: could not encode failures.", http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -210,8 +210,8 @@ func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
 	case hbu == "test1" && hbu == malu:
 		malist, hblist = test1()
 	default:
-		err := fmt.Errorf("Accounts do not match or unknown test.")
-		return &appErr{err, err.Error(), http.StatusUnauthorized}
+		err := fmt.Errorf("accounts do not match or unknown test")
+		return NewAppError(err, "Test check: Could not run test case.", http.StatusUnauthorized)
 	}
 
 	diff := anisync.Compare(malist, hblist)
@@ -227,7 +227,7 @@ func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
 
 	bytes, err := json.Marshal(resp)
 	if err != nil {
-		return &appErr{err, "could not marshal diff", http.StatusInternalServerError}
+		return NewAppError(err, "Test check: Could not encode list difference.", http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
