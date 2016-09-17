@@ -111,6 +111,9 @@
  .status-danger {
    background: #d2567e;
  }
+ .status-success {
+   background: #91D357;
+ }
  input.sidebar-input {
    border: none!important;
    background-color: transparent!important;
