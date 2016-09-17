@@ -34,5 +34,9 @@ func Search(q string) (string, error) {
 	}
 	// We use the UnescapedURL instead of URL so that it can be directly used.
 	// URL may contain escaped characters which will fail to load.
-	return re.ResponseData.Results[0].UnescapedURL, nil
+	results := re.ResponseData.Results
+	if len(results) == 0 {
+		return "", fmt.Errorf("no results")
+	}
+	return results[0].UnescapedURL, nil
 }
