@@ -200,7 +200,7 @@ func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	if _, resp, err := c.VerifyMALCredentials(t.MALUsername, t.MALPassword); err != nil {
+	if _, resp, err := c.SetAndVerifyMALCredentials(t.MALUsername, t.MALPassword); err != nil {
 		return NewMALError(resp, err, "Sync: Could not verify MAL credentials.", http.StatusUnauthorized)
 	}
 
@@ -276,7 +276,7 @@ func (app *App) handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 
 	c := newAnisyncClient(app.httpClient, app.malAgent, r)
 
-	_, _, err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
+	_, _, err = c.SetAndVerifyMALCredentials(t.MALUsername, t.MALPassword)
 	if err == nil {
 		res.IsValid = true
 	}
