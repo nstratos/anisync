@@ -62,7 +62,7 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 		return NewAppError(err, "Test sync: could not decode body.", http.StatusBadRequest)
 	}
 
-	c := newAnisyncClient(app.httpClient, app.malAgent, r)
+	c := newAnisyncClient(app.httpClient, "", r)
 
 	diff, err := getDiff(c, t.MALUsername, t.HBUsername)
 	if err != nil {

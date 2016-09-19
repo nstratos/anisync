@@ -15,8 +15,8 @@ type Client struct {
 
 func (c *Client) Resources() Resources { return c.resources }
 
-func NewDefaultClient(malAgent string) *Client {
-	return &Client{resources: NewResources(mal.NewClient(nil), malAgent, hb.NewClient(nil))}
+func NewDefaultClient() *Client {
+	return &Client{resources: NewResources(mal.NewClient(nil), "", hb.NewClient(nil))}
 }
 
 func NewClient(resources Resources) *Client {

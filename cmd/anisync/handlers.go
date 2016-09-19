@@ -23,7 +23,6 @@ func init() {
 
 	app := &App{
 		httpClient: http.DefaultClient,
-		malAgent:   malAgent, // malAgent is produced by go generate.
 	}
 
 	// API handlers
@@ -36,7 +35,6 @@ func init() {
 
 type App struct {
 	httpClient *http.Client
-	malAgent   string
 }
 
 type appErr struct {
@@ -155,7 +153,7 @@ func (app *App) handleCheck(w http.ResponseWriter, r *http.Request) error {
 	hbUsername := r.FormValue("hbUsername")
 	malUsername := r.FormValue("malUsername")
 
-	c := newAnisyncClient(app.httpClient, app.malAgent, r)
+	c := newAnisyncClient(app.httpClient, "", r)
 
 	diff, err := getDiff(c, malUsername, hbUsername)
 	if err != nil {
@@ -193,7 +191,7 @@ func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 		return NewAppError(err, "Sync: Could not decode request.", http.StatusBadRequest)
 	}
 
-	c := newAnisyncClient(app.httpClient, app.malAgent, r)
+	c := newAnisyncClient(app.httpClient, "", r)
 
 	diff, err := getDiff(c, t.MALUsername, t.HBUsername)
 	if err != nil {
@@ -274,7 +272,7 @@ func (app *App) handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 		t.MALUsername,
 	}
 
-	c := newAnisyncClient(app.httpClient, app.malAgent, r)
+	c := newAnisyncClient(app.httpClient, "", r)
 
 	_, _, err = c.SetAndVerifyMALCredentials(t.MALUsername, t.MALPassword)
 	if err == nil {

@@ -1,6 +1,4 @@
 *.swp
-agent.go
-agent.txt
 stdout.txt
 zerorating
 malupdated

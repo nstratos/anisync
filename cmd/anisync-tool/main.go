@@ -13,8 +13,6 @@ import (
 	"bitbucket.org/nstratos/anisync/anisync"
 )
 
-//go:generate go run ../generate/includeagent.go
-
 var (
 	hbUsername  = flag.String("hbu", "", "Hummingbird.me username (or set HB_USERNAME)")
 	malUsername = flag.String("malu", "", "MyAnimeList.net username (or set MAL_USERNAME)")
@@ -120,8 +118,7 @@ func run() error {
 		*malUsername = sc.Text()
 	}
 
-	// malAgent is produced by go generate.
-	c := anisync.NewDefaultClient(malAgent)
+	c := anisync.NewDefaultClient()
 
 	malist, _, err := c.GetMyAnimeList(*malUsername)
 	if err != nil {

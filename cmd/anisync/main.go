@@ -9,8 +9,6 @@ import (
 	"net/http"
 )
 
-//go:generate go run ../generate/includeagent.go
-
 var port = flag.String("port", "8080", "server port")
 
 func main() {
