@@ -163,7 +163,7 @@ func run() error {
 		*malPassword = string(pass)
 	}
 
-	err = c.VerifyMALCredentials(*malUsername, *malPassword)
+	_, _, err = c.SetAndVerifyMALCredentials(*malUsername, *malPassword)
 	if err != nil {
 		return fmt.Errorf("MyAnimeList.net username and password do not match")
 	}

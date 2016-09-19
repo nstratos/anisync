@@ -32,7 +32,7 @@ func init() {
 	client = NewClient(resources)
 }
 
-func (c *MALClientStub) Verify(username, password string) (*mal.User, *mal.Response, error) {
+func (c *MALClientStub) SetAndVerifyCredentials(username, password string) (*mal.User, *mal.Response, error) {
 	switch {
 	case username == "TestUsername" && password == "TestPassword":
 		return &mal.User{Username: "TestUsername"}, &mal.Response{Response: &http.Response{}}, nil
@@ -44,7 +44,7 @@ func (c *MALClientStub) Verify(username, password string) (*mal.User, *mal.Respo
 }
 
 func TestClient_VerifyMALCredentials(t *testing.T) {
-	u, _, err := client.VerifyMALCredentials("TestUsername", "TestPassword")
+	u, _, err := client.SetAndVerifyMALCredentials("TestUsername", "TestPassword")
 	if err != nil {
 		t.Errorf("VerifyMALCredentials with correct username and password returned err")
 	}
@@ -54,14 +54,14 @@ func TestClient_VerifyMALCredentials(t *testing.T) {
 }
 
 func TestClient_VerifyMALCredentials_wrongPassword(t *testing.T) {
-	_, _, err := client.VerifyMALCredentials("TestUser", "WrongTestPassword")
+	_, _, err := client.SetAndVerifyMALCredentials("TestUser", "WrongTestPassword")
 	if err == nil {
 		t.Error("VerifyMALCredentials with wrong password expected to return err")
 	}
 }
 
 func TestClient_VerifyMALCredentials_noResponse(t *testing.T) {
-	_, resp, err := client.VerifyMALCredentials("TestNoResponse", "")
+	_, resp, err := client.SetAndVerifyMALCredentials("TestNoResponse", "")
 	if err == nil {
 		t.Error("VerifyMALCredentials with no response expected to return err")
 	}

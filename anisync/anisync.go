@@ -23,8 +23,8 @@ func NewClient(resources Resources) *Client {
 	return &Client{resources: resources}
 }
 
-func (c *Client) VerifyMALCredentials(username, password string) (*mal.User, *http.Response, error) {
-	u, resp, err := c.resources.Verify(username, password)
+func (c *Client) SetAndVerifyMALCredentials(username, password string) (*mal.User, *http.Response, error) {
+	u, resp, err := c.resources.SetAndVerifyCredentials(username, password)
 	if resp == nil {
 		return u, nil, err
 	}

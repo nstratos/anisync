@@ -16,7 +16,7 @@ func NewMALClient(client *mal.Client, malAgent string) *MALClient {
 	return c
 }
 
-func (c *MALClient) Verify(username, password string) (*mal.User, *mal.Response, error) {
+func (c *MALClient) SetAndVerifyCredentials(username, password string) (*mal.User, *mal.Response, error) {
 	c.client.SetCredentials(username, password)
 	return c.client.Account.Verify()
 }
