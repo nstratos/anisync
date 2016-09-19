@@ -3,14 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"time"
 
 	"bitbucket.org/nstratos/anisync/anisync"
-	"bitbucket.org/nstratos/anisync/onepic"
 )
+
+const imgPlaceholder = "/static/assets/img/placeholder_100x145.png"
 
 func mockUpdateMAL(diff *anisync.Diff) ([]*anisync.Fail, error) {
 	fails0 := []*anisync.Fail{
@@ -106,37 +106,24 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func getOnePic(animeName string) string {
-	url, err := onepic.Search(animeName)
-	if err != nil {
-		log.Println("onepic:", err)
-		return "/static/assets/img/placeholder_100x145.png"
-	}
-	return url
-}
-
 func test1() ([]anisync.Anime, []anisync.Anime) {
 
 	now := time.Now()
 	before := now.AddDate(0, 0, -1)
 	anime1 := "Death parade"
-	anime1Pic := getOnePic(anime1)
 
 	anime2 := "Ore monogatari"
-	anime2Pic := getOnePic(anime2)
 
 	anime3 := "Shingeki no Kyojin"
-	anime3Pic := getOnePic(anime3)
 
 	anime4 := "Kuroko no basuke"
-	anime4Pic := getOnePic(anime4)
 
 	malist := []anisync.Anime{
 		{
 			ID:              1,
 			Title:           anime1,
 			Rating:          "4.0",
-			Image:           anime1Pic,
+			Image:           imgPlaceholder,
 			LastUpdated:     &now,
 			Status:          anisync.StatusOnHold,
 			EpisodesWatched: 0,
@@ -145,7 +132,7 @@ func test1() ([]anisync.Anime, []anisync.Anime) {
 			ID:              3,
 			Title:           anime3,
 			Rating:          "3.5",
-			Image:           anime3Pic,
+			Image:           imgPlaceholder,
 			LastUpdated:     &before,
 			EpisodesWatched: 5,
 			Rewatching:      false,
@@ -154,7 +141,7 @@ func test1() ([]anisync.Anime, []anisync.Anime) {
 			ID:              4,
 			Title:           anime4,
 			Rating:          "4.5",
-			Image:           anime4Pic,
+			Image:           imgPlaceholder,
 			LastUpdated:     &before,
 			EpisodesWatched: 6,
 			Rewatching:      false,
@@ -165,7 +152,7 @@ func test1() ([]anisync.Anime, []anisync.Anime) {
 			ID:              1,
 			Title:           anime1,
 			Rating:          "4.0",
-			Image:           anime1Pic,
+			Image:           imgPlaceholder,
 			LastUpdated:     &now,
 			Status:          anisync.StatusOnHold,
 			EpisodesWatched: 0,
@@ -174,7 +161,7 @@ func test1() ([]anisync.Anime, []anisync.Anime) {
 			ID:          2,
 			Title:       anime2,
 			Rating:      "4.0",
-			Image:       anime2Pic,
+			Image:       imgPlaceholder,
 			LastUpdated: &now,
 			Status:      anisync.StatusCurrentlyWatching,
 		},
@@ -182,7 +169,7 @@ func test1() ([]anisync.Anime, []anisync.Anime) {
 			ID:              3,
 			Title:           anime3,
 			Rating:          "2.5",
-			Image:           anime3Pic,
+			Image:           imgPlaceholder,
 			LastUpdated:     &now,
 			EpisodesWatched: 10,
 			Rewatching:      true,
@@ -191,7 +178,7 @@ func test1() ([]anisync.Anime, []anisync.Anime) {
 			ID:              4,
 			Title:           anime4,
 			Rating:          "5.0",
-			Image:           anime4Pic,
+			Image:           imgPlaceholder,
 			LastUpdated:     &now,
 			EpisodesWatched: 6,
 			Rewatching:      true,
