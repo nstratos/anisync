@@ -67,7 +67,7 @@ func syncMALAnimeTest(diff *anisync.Diff) *anisync.SyncResult {
 		// even succeed, odd fail
 		if i%2 != 0 {
 			err := fmt.Errorf("add failure but not really")
-			addf = append(addf, anisync.AddFail{Anime: a, Error: err})
+			addf = append(addf, anisync.MakeAddFail(a, err))
 		}
 		adds = append(adds, anisync.AddSuccess{Anime: a})
 		diff.UpToDate = append(diff.UpToDate, a)
@@ -84,7 +84,7 @@ func syncMALAnimeTest(diff *anisync.Diff) *anisync.SyncResult {
 		// even succeed, odd fail
 		if i%2 != 0 {
 			err := fmt.Errorf("update failure but not really")
-			updf = append(updf, anisync.UpdateFail{AniDiff: d, Error: err})
+			updf = append(updf, anisync.MakeUpdateFail(d, err))
 			continue
 		}
 		upds = append(upds, anisync.UpdateSuccess{AniDiff: d})

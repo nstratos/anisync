@@ -118,12 +118,13 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
 
 function makeStatusBarError(error) {
   var statusBar = {
+    type: "simple",
     message: "",
     cause: "",
     visible: true,
     next: false,
     askMessage: "",
-    type: "danger"
+    theme: "danger"
   };
   if (!error) {
     statusBar.message = "Aw, Snap! Something went horribly wrong.";
@@ -136,11 +137,15 @@ function makeStatusBarError(error) {
 
 function makeStatusBarSync(data) {
   var statusBar = {
+    type: "simple",
     message: "",
+    errorMessage: "",
     visible: true,
     next: false,
+    details: true,
+    detailsVisible: false,
     askMessage: "Sync",
-    type: "success"
+    theme: "success"
   };
   statusBar.message += "MyAnimeList.net account \"" + data.MalUsername + "\" just had:\n";
 
@@ -154,7 +159,8 @@ function makeStatusBarSync(data) {
     statusBar.message += data.Sync.Updates.length + " updated anime.";
   }
   if (data.Sync.AddFails || data.Sync.UpdateFails) {
-    statusBar.type = "error";
+    statusBar.theme = "danger";
+    statusBar.type = "details";
   }
   if (data.Sync.AddFails && data.Sync.UpdateFails) {
     statusBar.message += " However " + data.Sync.UpdateFails.length +
@@ -166,16 +172,30 @@ function makeStatusBarSync(data) {
   if (data.Sync.AddFails && !data.Sync.UpdateFails) {
     statusBar.message += " However " + data.Sync.AddFails.length + " failed to be added.";
   }
+
+  if (data.Sync.UpdateFails) {
+    statusBar.errorMessage += "Update failures:\n";
+    for (i = 0; i < data.Sync.UpdateFails.length; i++) {
+      statusBar.errorMessage += "Name: " + data.Sync.UpdateFails[i].Anime.Title + ", Reason: " + data.Sync.UpdateFails[i].Reason + "\n";
+    }
+  }
+  if (data.Sync.AddFails) {
+    statusBar.errorMessage += "Add failures:\n";
+    for (i = 0; i < data.Sync.AddFails.length; i++) {
+      statusBar.errorMessage += "Name: " + data.Sync.AddFails[i].Anime.Title + ", Reason: " + data.Sync.AddFails[i].Reason + "\n";
+    }
+  }
   return statusBar;
 }
 
 function makeStatusBar(data) {
   var statusBar = {
+    type: "next",
     message: "",
     visible: true,
     next: true,
     askMessage: "Sync",
-    type: "info"
+    theme: "info"
   };
   // create status message
   statusBar.message = "After syncing, there will be:\n"
@@ -191,8 +211,9 @@ function makeStatusBar(data) {
   statusBar.message += "anime on MyAnimeList.net account \"" + data.MalUsername + "\".";
   if (!data.Missing && !data.NeedUpdate) {
     statusBar.message = "Everything is in sync!";
-    statusBar.type = "success";
+    statusBar.theme = "success";
     statusBar.next = false;
+    statusBar.type = "simple";
   }
   return statusBar;
 }

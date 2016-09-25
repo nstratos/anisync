@@ -24,8 +24,13 @@ type AddSuccess struct {
 }
 
 type AddFail struct {
-	Anime Anime
-	Error error
+	Anime  Anime
+	Error  error
+	Reason string
+}
+
+func MakeAddFail(a Anime, err error) AddFail {
+	return AddFail{Anime: a, Error: err, Reason: err.Error()}
 }
 
 type UpdateSuccess struct {
@@ -34,7 +39,12 @@ type UpdateSuccess struct {
 
 type UpdateFail struct {
 	AniDiff
-	Error error
+	Error  error
+	Reason string
+}
+
+func MakeUpdateFail(d AniDiff, err error) UpdateFail {
+	return UpdateFail{AniDiff: d, Error: err, Reason: err.Error()}
 }
 
 func (c *Client) SyncMALAnime(diff Diff) *SyncResult {
@@ -43,7 +53,7 @@ func (c *Client) SyncMALAnime(diff Diff) *SyncResult {
 	for _, a := range diff.Missing {
 		err := c.AddMALAnime(a)
 		if err != nil {
-			addf = append(addf, AddFail{Anime: a, Error: err})
+			addf = append(addf, MakeAddFail(a, err))
 			continue
 		}
 		adds = append(adds, AddSuccess{Anime: a})
@@ -54,7 +64,7 @@ func (c *Client) SyncMALAnime(diff Diff) *SyncResult {
 	for _, d := range diff.NeedUpdate {
 		err := c.UpdateMALAnime(d.Anime)
 		if err != nil {
-			updf = append(updf, UpdateFail{AniDiff: d, Error: err})
+			updf = append(updf, MakeUpdateFail(d, err))
 			continue
 		}
 		upds = append(upds, UpdateSuccess{AniDiff: d})

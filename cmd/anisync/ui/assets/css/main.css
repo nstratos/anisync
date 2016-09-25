@@ -229,7 +229,7 @@
  }
  
  button.statusbar-button {
-   background: #91D357;
+   background: #999;
    border: none;
    color: #fff;
    letter-spacing: 0.05em;
@@ -238,14 +238,35 @@
    transition: background-color 0.3s;
  }
  
- button.statusbar-button:hover,
- button.statusbar-button:focus {
+ button.statusbar-button-danger {
+   background: #d2567e;
+ }
+ 
+ button.statusbar-button-success {
+   background: #91D357;
+ }
+ 
+ button.statusbar-button-danger:hover,
+ button.statusbar-button-danger:focus {
+   background: #e880a1;
+   outline: 0;
+   text-decoration: none;
+ }
+ 
+ button.statusbar-button-danger:active {
+   border: none;
+   background: #f2aec4;
+   text-decoration: none;
+ }
+ 
+ button.statusbar-button-success:hover,
+ button.statusbar-button-success:focus {
    background: #b3e982;
    outline: 0;
    text-decoration: none;
  }
  
- button.statusbar-button:active {
+ button.statusbar-button-success:active {
    border: none;
    background: #cff3af;
    text-decoration: none;
