@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -12,44 +11,6 @@ import (
 
 const imgPlaceholder = "/static/assets/img/placeholder_100x145.png"
 
-func mockUpdateMAL(diff *anisync.Diff) ([]*anisync.Fail, error) {
-	fails0 := []*anisync.Fail{
-		{
-			Anime: anisync.Anime{
-				ID:              1,
-				Title:           "Ore monogatari",
-				Rating:          "4.0",
-				Status:          anisync.StatusOnHold,
-				EpisodesWatched: 0,
-			},
-			Error: fmt.Errorf("something went wrong"),
-		},
-	}
-	fails1 := []*anisync.Fail{
-		{
-			Anime: anisync.Anime{
-				ID:              4,
-				Title:           "Kuroko no basuke",
-				Rating:          "5.0",
-				EpisodesWatched: 6,
-				Rewatching:      true,
-			}, Error: fmt.Errorf("misdirection overflow"),
-		},
-	}
-
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	switch r.Intn(3) {
-	case 0:
-		return fails0, fmt.Errorf("one failed")
-	case 1:
-		return fails1, fmt.Errorf("one or more failed")
-	case 2:
-		return nil, nil
-	}
-
-	return nil, nil
-}
-
 func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	// Receiving json from POST body.
 	t := struct {
@@ -57,53 +18,83 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 		MALUsername string `json:"malUsername"`
 		MALPassword string `json:"malPassword"`
 	}{}
-	err := json.NewDecoder(r.Body).Decode(&t)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
 		return NewAppError(err, "Test sync: could not decode body.", http.StatusBadRequest)
 	}
+	hbu := t.HBUsername
+	malu := t.MALUsername
 
-	c := newAnisyncClient(app.httpClient, "", r)
-
-	diff, err := getDiff(c, t.MALUsername, t.HBUsername)
-	if err != nil {
-		return err
+	var malist, hblist []anisync.Anime
+	switch {
+	case hbu == "test1" && hbu == malu:
+		malist, hblist = test1()
+	default:
+		err := fmt.Errorf("accounts do not match or unknown test")
+		return NewAppError(err, "Test sync: Could not run test case.", http.StatusUnauthorized)
 	}
 
-	//err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
-	//if err != nil {
-	//	return &appErr{err, "could not verify MAL credentials", http.StatusUnauthorized}
-	//}
+	diff := anisync.Compare(malist, hblist)
+	syncResult := syncMALAnimeTest(diff)
 
-	var allFails []*anisync.Fail
-	//fails, uerr := c.Anime.UpdateMAL(*diff)
-	fails, uerr := mockUpdateMAL(diff)
-	allFails = append(allFails, fails...)
-
-	//fails, aerr := c.Anime.AddMAL(*diff)
-	fails, aerr := mockUpdateMAL(diff)
-	allFails = append(allFails, fails...)
-
-	report := struct {
-		Fails   []*anisync.Fail
-		Message string
+	// Including MyAnimeList account username in response.
+	resp := struct {
+		MalUsername string
+		Sync        *anisync.SyncResult
+		*anisync.Diff
 	}{
-		allFails,
-		"hello",
+		t.MALUsername,
+		syncResult,
+		diff,
 	}
 
-	if uerr == nil && aerr == nil {
-		report.Message = "wow much luck"
-	}
-
-	bytes, err := json.Marshal(report)
+	bytes, err := json.Marshal(resp)
 	if err != nil {
-		return NewAppError(err, "Test sync: could not encode failures.", http.StatusInternalServerError)
+		return NewAppError(err, "Test sync: could not encode response.", http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
 
 	return nil
+}
+
+func syncMALAnimeTest(diff *anisync.Diff) *anisync.SyncResult {
+	var adds []anisync.AddSuccess
+	var addf []anisync.AddFail
+	missing := make([]anisync.Anime, len(diff.Missing))
+	copy(missing, diff.Missing)
+	for i, a := range diff.Missing {
+		// even succeed, odd fail
+		if i%2 != 0 {
+			err := fmt.Errorf("add failure but not really")
+			addf = append(addf, anisync.AddFail{Anime: a, Error: err})
+		}
+		adds = append(adds, anisync.AddSuccess{Anime: a})
+		diff.UpToDate = append(diff.UpToDate, a)
+		// delete
+		missing = append(missing[:i], missing[i+1:]...)
+	}
+	diff.Missing = missing
+
+	var upds []anisync.UpdateSuccess
+	var updf []anisync.UpdateFail
+	needUpdate := make([]anisync.AniDiff, len(diff.NeedUpdate))
+	copy(needUpdate, diff.NeedUpdate)
+	for i, d := range diff.NeedUpdate {
+		// even succeed, odd fail
+		if i%2 != 0 {
+			err := fmt.Errorf("update failure but not really")
+			updf = append(updf, anisync.UpdateFail{AniDiff: d, Error: err})
+			continue
+		}
+		upds = append(upds, anisync.UpdateSuccess{AniDiff: d})
+		diff.UpToDate = append(diff.UpToDate, d.Anime)
+		// delete
+		needUpdate = append(needUpdate[:i], needUpdate[i+1:]...)
+	}
+	diff.NeedUpdate = needUpdate
+
+	return &anisync.SyncResult{Adds: adds, AddFails: addf, Updates: upds, UpdateFails: updf}
 }
 
 func test1() ([]anisync.Anime, []anisync.Anime) {
