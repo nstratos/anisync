@@ -131,7 +131,7 @@ function makeStatusBarSync(data) {
   var statusBar = {
     message: "",
     visible: true,
-    next: true,
+    next: false,
     askMessage: "Sync",
     type: "success"
   };
@@ -159,6 +159,7 @@ function makeStatusBarSync(data) {
   if (data.Sync.AddFails && !data.Sync.UpdateFails) {
     statusBar.message += " However " + data.Sync.AddFails.length + " failed to be added.";
   }
+  return statusBar;
 }
 
 function makeStatusBar(data) {
