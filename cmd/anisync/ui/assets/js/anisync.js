@@ -106,7 +106,7 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
         $scope.checkResp = data;
         //$scope.syncResp = data;
         $scope.statusBar = makeStatusBarSync(data);
-      }, function(error){
+      }, function(error) {
         $scope.statusBar = makeStatusBarError(error);
       }).finally(function() {
         $scope.progressbar.complete();
@@ -126,8 +126,8 @@ function makeStatusBarError(error) {
     type: "danger"
   };
   if (!error) {
-	  statusBar.message = "Aw, Snap! Something went horribly wrong.";
-	  return statusBar;
+    statusBar.message = "Aw, Snap! Something went horribly wrong.";
+    return statusBar;
   }
   statusBar.message = error.data.Message;
   statusBar.cause = error.data.Cause;
@@ -154,11 +154,11 @@ function makeStatusBarSync(data) {
     statusBar.message += data.Sync.Updates.length + " updated anime.";
   }
   if (data.Sync.AddFails || data.Sync.UpdateFails) {
-    statusBar.type= "error";
+    statusBar.type = "error";
   }
   if (data.Sync.AddFails && data.Sync.UpdateFails) {
     statusBar.message += " However " + data.Sync.UpdateFails.length +
-	    " failed to update and " + data.Sync.AddFails.length + " failed to be added.";
+      " failed to update and " + data.Sync.AddFails.length + " failed to be added.";
   }
   if (!data.Sync.AddFails && data.Sync.UpdateFails) {
     statusBar.message += " However " + data.Sync.UpdateFails.length + " failed to update.";
