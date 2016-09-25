@@ -12,11 +12,6 @@ import (
 	"github.com/nstratos/go-myanimelist/mal"
 )
 
-const defaultUserAgent = `
-	Mozilla/5.0 (X11; Linux x86_64) 
-	AppleWebKit/537.36 (KHTML, like Gecko) 
-	Chrome/42.0.2311.90 Safari/537.36`
-
 var (
 	client *Client
 )
@@ -26,7 +21,7 @@ func init() {
 		*MALClientStub
 		*HBClientStub
 	}{
-		NewMALClientStub(mal.NewClient(nil), defaultUserAgent),
+		NewMALClientStub(mal.NewClient(nil), ""),
 		NewHBClientStub(hb.NewClient(nil)),
 	}
 	client = NewClient(resources)
@@ -71,11 +66,11 @@ func TestClient_VerifyMALCredentials_noResponse(t *testing.T) {
 }
 
 func TestNewDefaultClient(t *testing.T) {
-	c := NewDefaultClient(defaultUserAgent)
+	c := NewDefaultClient()
+	got := c.Resources()
+	want := NewResources(mal.NewClient(nil), "", hb.NewClient(nil))
 
-	got := NewResources(mal.NewClient(nil), defaultUserAgent, hb.NewClient(nil))
-
-	if want := c.Resources(); !reflect.DeepEqual(got, want) {
-		t.Errorf("NewDefaultClient.Resources() = %q, want %q", got, want)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("NewDefaultClient.Resources() = \n%#v, want \n%#v", got, want)
 	}
 }

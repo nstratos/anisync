@@ -10,12 +10,12 @@ import (
 )
 
 func TestNewResources(t *testing.T) {
-	c := anisync.NewResources(mal.NewClient(nil), defaultUserAgent, hb.NewClient(nil))
+	c := anisync.NewResources(mal.NewClient(nil), "", hb.NewClient(nil))
 	want := struct {
 		*anisync.MALClient
 		*anisync.HBClient
 	}{
-		anisync.NewMALClient(mal.NewClient(nil), defaultUserAgent),
+		anisync.NewMALClient(mal.NewClient(nil), ""),
 		anisync.NewHBClient(hb.NewClient(nil)),
 	}
 	if got := c; !reflect.DeepEqual(got, want) {
