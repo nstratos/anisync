@@ -34,6 +34,13 @@ var anisyncControllers = angular.module('anisyncControllers', []);
 anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFactory', '$window', '$timeout',
 
   function($scope, Anisync, ngProgressFactory, $window, $timeout) {
+    // malVerify options for the password input
+    $scope.malVerifyURL = '/api/mal-verify';
+    $scope.malVerifyDelay = 900;
+    if (window.location.search == "?testbed") {
+      $scope.malVerifyURL = '/api/mock/mal-verify';
+      $scope.malVerifyDelay = 400;
+    }
     // clickNext
     $scope.clickNext = function() {
       $scope.switchOn = true;

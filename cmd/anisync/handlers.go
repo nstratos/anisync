@@ -28,9 +28,10 @@ func init() {
 	// API handlers
 	http.Handle("/api/check", appHandler(app.handleCheck))
 	http.Handle("/api/sync", appHandler(app.handleSync))
+	http.Handle("/api/mal-verify", appHandler(app.handleMALVerify))
 	http.Handle("/api/mock/check", appHandler(app.handleTestCheck))
 	http.Handle("/api/mock/sync", appHandler(app.handleTestSync))
-	http.Handle("/api/mal/verify", appHandler(app.handleMALVerify))
+	http.Handle("/api/mock/mal-verify", appHandler(app.handleTestMALVerify))
 }
 
 type App struct {
@@ -285,5 +286,19 @@ func (app *App) handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 		return NewAppError(err, "Verify: Could not encode response.", http.StatusInternalServerError)
 	}
 
+	return nil
+}
+
+func (app *App) handleTestMALVerify(w http.ResponseWriter, r *http.Request) error {
+	res := struct {
+		IsValid bool `json:"isValid"`
+	}{
+		true,
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		return NewAppError(err, "Verify: Could not encode response.", http.StatusInternalServerError)
+	}
 	return nil
 }

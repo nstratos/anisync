@@ -45,8 +45,8 @@
             placeholder="MAL username" class="sidebar-input pure-input-1" required>
             <input type="password" name="malPassword" ng-model="req.malPassword" title="Your MyAnimeList.net password"
             placeholder="MAL Password" class="sidebar-input pure-input-1" ng-show="switchOn"
-            id="malPasswordInput" ng-cloak ng-required="switchOn" ng-remote-validate="/api/mal/verify"
-            ng-remote-throttle="900">
+	     id="malPasswordInput" ng-cloak ng-required="switchOn" ng-remote-validate="{{malVerifyURL}}"
+            ng-remote-throttle="{{malVerifyDelay}}">
             <span ng-cloak ng-show="mainForm.malPassword.$error.ngRemoteValidate">Password does not match MAL username</span>
 
             <div class="pure-controls">
