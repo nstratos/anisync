@@ -12,7 +12,7 @@
 <div class="pure-g" ng-if="statusBar.type == 'details'" ng-show="statusBar.visible">
   <div class="status status-{{statusBar.theme}} pure-u-21-24">
     <span>{{statusBar.message}}</span>
-    <pre ng-if="statusBar.detailsVisible">{{statusBar.errorMessage}}</pre>
+    <pre class="status-pre" ng-if="statusBar.detailsVisible">{{statusBar.errorMessage}}</pre>
   </div>
   <button class="statusbar-button statusbar-button-{{statusBar.theme}} pure-u-3-24" ng-click="statusBar.detailsVisible = !statusBar.detailsVisible">
     <ng-md-icon ng-if="!statusBar.detailsVisible" icon="expand_more" size="40" style="fill: #fff"></ng-md-icon>

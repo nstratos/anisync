@@ -143,6 +143,11 @@
    background: #91D357;
  }
  
+ .status-pre {
+   background: #b8345e;
+   padding: 1em;
+ }
+ 
  input.sidebar-input {
    border: none!important;
    background-color: transparent!important;
