@@ -34,7 +34,15 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	diff := anisync.Compare(malist, hblist)
-	syncResult := syncMALAnimeTest(diff)
+	// Here we decide which anime will return an error when syncing.
+	syncFn := func(index int, anime anisync.Anime) error {
+		// Anime on odd indexes will return err (no particular reason).
+		if index%2 != 0 {
+			return fmt.Errorf("anime failed (but that's normal!)")
+		}
+		return nil
+	}
+	syncResult := syncMALAnimeTest(diff, syncFn)
 
 	// Including MyAnimeList account username in response.
 	resp := struct {
@@ -58,43 +66,73 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func syncMALAnimeTest(diff *anisync.Diff) *anisync.SyncResult {
-	var adds []anisync.AddSuccess
-	var addf []anisync.AddFail
-	missing := make([]anisync.Anime, len(diff.Missing))
-	copy(missing, diff.Missing)
+func syncMALAnimeTest(diff *anisync.Diff, syncFn func(index int, anime anisync.Anime) error) *anisync.SyncResult {
+	var (
+		adds              []anisync.AddSuccess
+		addf              []anisync.AddFail
+		removeFromMissing []int
+	)
 	for i, a := range diff.Missing {
-		// even succeed, odd fail
-		if i%2 != 0 {
-			err := fmt.Errorf("add failure but not really")
+		err := syncFn(i, a)
+		if err != nil {
 			addf = append(addf, anisync.MakeAddFail(a, err))
 		}
 		adds = append(adds, anisync.AddSuccess{Anime: a})
+		// After gathering the add successes and failures, we also modify diff
+		// to make it appear as the sync happened. This includes adding the
+		// successes as "up to date" and removing them from "missing".
 		diff.UpToDate = append(diff.UpToDate, a)
-		// delete
-		missing = append(missing[:i], missing[i+1:]...)
+		// Gathering the IDs of the anime to remove.
+		removeFromMissing = append(removeFromMissing, a.ID)
 	}
-	diff.Missing = missing
+	// Removing the anime.
+	for _, id := range removeFromMissing {
+		diff.Missing = deleteAnimeByID(diff.Missing, id)
+	}
 
-	var upds []anisync.UpdateSuccess
-	var updf []anisync.UpdateFail
-	needUpdate := make([]anisync.AniDiff, len(diff.NeedUpdate))
-	copy(needUpdate, diff.NeedUpdate)
+	var (
+		upds                 []anisync.UpdateSuccess
+		updf                 []anisync.UpdateFail
+		removeFromNeedUpdate []int
+	)
 	for i, d := range diff.NeedUpdate {
-		// even succeed, odd fail
-		if i%2 != 0 {
-			err := fmt.Errorf("update failure but not really")
+		err := syncFn(i, d.Anime)
+		if err != nil {
 			updf = append(updf, anisync.MakeUpdateFail(d, err))
 			continue
 		}
 		upds = append(upds, anisync.UpdateSuccess{AniDiff: d})
+		// After gathering the update successes and failures, we also modify
+		// diff to make it appear as the sync happened. This includes adding
+		// the successes as "up to date" and removing them from "need update".
 		diff.UpToDate = append(diff.UpToDate, d.Anime)
-		// delete
-		needUpdate = append(needUpdate[:i], needUpdate[i+1:]...)
+		// Gathering the IDs of the anime to remove.
+		removeFromNeedUpdate = append(removeFromNeedUpdate, d.Anime.ID)
 	}
-	diff.NeedUpdate = needUpdate
+	// Removing the the anime.
+	for _, id := range removeFromNeedUpdate {
+		diff.NeedUpdate = deleteAniDiffByID(diff.NeedUpdate, id)
+	}
 
 	return &anisync.SyncResult{Adds: adds, AddFails: addf, Updates: upds, UpdateFails: updf}
+}
+
+func deleteAnimeByID(anime []anisync.Anime, id int) []anisync.Anime {
+	for i, a := range anime {
+		if a.ID == id {
+			anime = append(anime[:i], anime[i+1:]...)
+		}
+	}
+	return anime
+}
+
+func deleteAniDiffByID(diff []anisync.AniDiff, id int) []anisync.AniDiff {
+	for i, d := range diff {
+		if d.Anime.ID == id {
+			diff = append(diff[:i], diff[i+1:]...)
+		}
+	}
+	return diff
 }
 
 func test1() ([]anisync.Anime, []anisync.Anime) {
