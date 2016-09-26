@@ -124,7 +124,8 @@ function makeStatusBarError(error) {
     visible: true,
     next: false,
     askMessage: "",
-    theme: "danger"
+    theme: "danger",
+    buttonTheme: "danger"
   };
   if (!error) {
     statusBar.message = "Aw, Snap! Something went horribly wrong.";
@@ -160,6 +161,7 @@ function makeStatusBarSync(data) {
   }
   if (data.Sync.AddFails || data.Sync.UpdateFails) {
     statusBar.theme = "danger";
+    statusBar.buttonTheme = "danger";
     statusBar.type = "details";
   }
   if (data.Sync.AddFails && data.Sync.UpdateFails) {
@@ -195,7 +197,8 @@ function makeStatusBar(data) {
     visible: true,
     next: true,
     askMessage: "Sync",
-    theme: "info"
+    theme: "info",
+    buttonTheme: "success"
   };
   // create status message
   statusBar.message = "After syncing, there will be:\n"

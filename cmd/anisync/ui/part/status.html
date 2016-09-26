@@ -4,7 +4,7 @@
     <span>{{statusBar.message}}</span>
     <span ng-if="statusBar.cause">Reason: "{{statusBar.cause}}"</span>
   </div>
-  <button class="statusbar-button pure-u-3-24" ng-click="clickNext()">
+  <button class="statusbar-button statusbar-button-{{statusBar.buttonTheme}} pure-u-3-24" ng-click="clickNext()">
     <ng-md-icon icon="navigate_next" size="40" style="fill: #fff"></ng-md-icon>
   </button>
 </div>
@@ -14,7 +14,7 @@
     <span>{{statusBar.message}}</span>
     <pre class="status-pre" ng-if="statusBar.detailsVisible">{{statusBar.errorMessage}}</pre>
   </div>
-  <button class="statusbar-button statusbar-button-{{statusBar.theme}} pure-u-3-24" ng-click="statusBar.detailsVisible = !statusBar.detailsVisible">
+  <button class="statusbar-button statusbar-button-{{statusBar.buttonTheme}} pure-u-3-24" ng-click="statusBar.detailsVisible = !statusBar.detailsVisible">
     <ng-md-icon ng-if="!statusBar.detailsVisible" icon="expand_more" size="40" style="fill: #fff"></ng-md-icon>
     <ng-md-icon ng-if="statusBar.detailsVisible" icon="expand_less" size="40" style="fill: #fff"></ng-md-icon>
   </button>
