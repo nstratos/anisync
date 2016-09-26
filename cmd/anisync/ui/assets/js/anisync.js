@@ -149,7 +149,7 @@ function makeStatusBarSync(data) {
     theme: "success"
   };
   if (!data.Sync.Adds && !data.Sync.Updates && !data.Sync.AddFails && !data.Sync.UpdateFails) {
-    statusBar.message += "Nothing to sync because everything is already in sync!";
+    statusBar.message += "Nothing to sync because everything is already in sync! " + randomWoot();
   } else if (!data.Sync.Adds && !data.Sync.Updates && (data.Sync.AddFails || data.Sync.UpdateFails)) {
     statusBar.message += "Attempted to sync anime.";
   } else {
@@ -219,10 +219,16 @@ function makeStatusBar(data) {
   }
   statusBar.message += "anime on MyAnimeList.net account \"" + data.MalUsername + "\".";
   if (!data.Missing && !data.NeedUpdate) {
-    statusBar.message = "Everything is in sync!";
+    statusBar.message = "Everything is in sync! " + randomWoot();
     statusBar.theme = "success";
     statusBar.next = false;
     statusBar.type = "simple";
   }
   return statusBar;
+}
+
+var woots = ["Woot!", "Yay!", "Capital!", "Hooray!", "Groovy!", "Splendid!", "Swell!", "Sweet!", "Cool!", "Great!", "Awesome!"];
+
+function randomWoot() {
+	return woots[Math.floor(Math.random() * woots.length)];
 }
