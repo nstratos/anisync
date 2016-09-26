@@ -148,7 +148,13 @@ function makeStatusBarSync(data) {
     askMessage: "Sync",
     theme: "success"
   };
-  statusBar.message += "MyAnimeList.net account \"" + data.MalUsername + "\" just had:\n";
+  if (!data.Sync.Adds && !data.Sync.Updates && !data.Sync.AddFails && !data.Sync.UpdateFails) {
+    statusBar.message += "Nothing to sync because everything is already in sync!";
+  } else if (!data.Sync.Adds && !data.Sync.Updates && (data.Sync.AddFails || data.Sync.UpdateFails)) {
+    statusBar.message += "Attempted to sync anime.";
+  } else {
+    statusBar.message += "MyAnimeList.net account \"" + data.MalUsername + "\" just had:\n";
+  }
 
   if (data.Sync.Adds && data.Sync.Updates) {
     statusBar.message += data.Sync.Updates.length + " updated and " + data.Sync.Adds.length + " newly added anime.";
