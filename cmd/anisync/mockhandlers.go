@@ -25,23 +25,22 @@ func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	malu := t.MALUsername
 
 	var malist, hblist []anisync.Anime
+	var syncFn syncFunc
 	switch {
 	case hbu == "test1" && hbu == malu:
-		malist, hblist = test1()
+		malist, hblist, syncFn = test1()
+	case hbu == "test2" && hbu == malu:
+		malist, hblist, syncFn = test2()
+	case hbu == "test3" && hbu == malu:
+		malist, hblist, syncFn = test3()
+	case hbu == "test4" && hbu == malu:
+		malist, hblist, syncFn = test4()
 	default:
 		err := fmt.Errorf("accounts do not match or unknown test")
 		return NewAppError(err, "Test sync: Could not run test case.", http.StatusUnauthorized)
 	}
 
 	diff := anisync.Compare(malist, hblist)
-	// Here we decide which anime will return an error when syncing.
-	syncFn := func(index int, anime anisync.Anime) error {
-		// Anime on odd indexes will return err (no particular reason).
-		if index%2 != 0 {
-			return fmt.Errorf("anime failed (but that's normal!)")
-		}
-		return nil
-	}
 	syncResult := syncMALAnimeTest(diff, syncFn)
 
 	// Including MyAnimeList account username in response.
@@ -76,6 +75,7 @@ func syncMALAnimeTest(diff *anisync.Diff, syncFn func(index int, anime anisync.A
 		err := syncFn(i, a)
 		if err != nil {
 			addf = append(addf, anisync.MakeAddFail(a, err))
+			continue
 		}
 		adds = append(adds, anisync.AddSuccess{Anime: a})
 		// After gathering the add successes and failures, we also modify diff
@@ -135,16 +135,17 @@ func deleteAniDiffByID(diff []anisync.AniDiff, id int) []anisync.AniDiff {
 	return diff
 }
 
-func test1() ([]anisync.Anime, []anisync.Anime) {
+// syncFunc is used to indicate which anime will return an error when
+// performing a mock sync.
+type syncFunc func(index int, anime anisync.Anime) error
 
+func test1() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 	now := time.Now()
 	before := now.AddDate(0, 0, -1)
+
 	anime1 := "Death parade"
-
 	anime2 := "Ore monogatari"
-
 	anime3 := "Shingeki no Kyojin"
-
 	anime4 := "Kuroko no basuke"
 
 	malist := []anisync.Anime{
@@ -213,8 +214,238 @@ func test1() ([]anisync.Anime, []anisync.Anime) {
 			Rewatching:      true,
 		},
 	}
+	// One anime fails to update.
+	syncFn := func(index int, anime anisync.Anime) error {
+		switch anime.ID {
+		case 4:
+			return fmt.Errorf("anime failed to be updated (but that's normal!)")
+		default:
+			return nil
+		}
+		return nil
+	}
+	return malist, hblist, syncFn
+}
 
-	return malist, hblist
+func test2() ([]anisync.Anime, []anisync.Anime, syncFunc) {
+	now := time.Now()
+
+	anime1 := "One Piece"
+
+	malist := []anisync.Anime{
+		{
+			ID:              1,
+			Title:           anime1,
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 2,
+		},
+	}
+
+	hblist := []anisync.Anime{
+		{
+			ID:              1,
+			Title:           anime1,
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 2,
+		},
+	}
+	// All anime succeed.
+	syncFn := func(int, anisync.Anime) error {
+		return nil
+	}
+	return malist, hblist, syncFn
+}
+
+func test3() ([]anisync.Anime, []anisync.Anime, syncFunc) {
+	now := time.Now()
+	before := now.AddDate(0, 0, -1)
+
+	anime1 := "Berserk"
+	anime2 := "Cowboy Bebop"
+
+	malist := []anisync.Anime{
+		{
+			ID:              1,
+			Title:           anime1,
+			Image:           imgPlaceholder,
+			LastUpdated:     &before,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 0,
+		},
+	}
+
+	hblist := []anisync.Anime{
+		{
+			ID:              1,
+			Title:           anime1,
+			Rating:          "4.0",
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusCurrentlyWatching,
+			EpisodesWatched: 2,
+		},
+		{
+			ID:              2,
+			Title:           anime2,
+			Rating:          "3.0",
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 0,
+		},
+	}
+	// All anime fail.
+	syncFn := func(index int, anime anisync.Anime) error {
+		switch anime.ID {
+		case 1:
+			return fmt.Errorf("anime failed to be updated (but that's normal!)")
+		case 2:
+			return fmt.Errorf("anime failed to be added (but that's normal!)")
+		default:
+			return nil
+		}
+	}
+	return malist, hblist, syncFn
+}
+
+func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
+	now := time.Now()
+	before := now.AddDate(0, 0, -1)
+
+	anime1 := "Death parade"
+	anime2 := "Ore monogatari"
+	anime3 := "Shingeki no Kyojin"
+	anime4 := "Kuroko no basuke"
+	anime5 := "One Piece"
+	anime6 := "Berserk"
+	anime7 := "Cowboy Bebop"
+	anime8 := "Mob Psycho 100"
+
+	malist := []anisync.Anime{
+		{
+			ID:              1,
+			Title:           anime1,
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 0,
+		},
+		{
+			ID:              2,
+			Title:           anime2,
+			Rating:          "3.0",
+			Image:           imgPlaceholder,
+			LastUpdated:     &before,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 0,
+		},
+		{
+			ID:              3,
+			Title:           anime3,
+			Rating:          "4.0",
+			Image:           imgPlaceholder,
+			LastUpdated:     &before,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 0,
+		},
+		{
+			ID:          7,
+			Title:       anime7,
+			Image:       imgPlaceholder,
+			LastUpdated: &before,
+			Status:      anisync.StatusOnHold,
+		},
+		{
+			ID:          8,
+			Title:       anime8,
+			Image:       imgPlaceholder,
+			LastUpdated: &now,
+			Status:      anisync.StatusOnHold,
+		},
+	}
+
+	hblist := []anisync.Anime{
+		{
+			ID:              1,
+			Title:           anime1,
+			Rating:          "4.0",
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusCurrentlyWatching,
+			EpisodesWatched: 2,
+		},
+		{
+			ID:              2,
+			Title:           anime2,
+			Rating:          "3.0",
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusOnHold,
+			EpisodesWatched: 4,
+		},
+		{
+			ID:              3,
+			Title:           anime3,
+			Rating:          "4.5",
+			Image:           imgPlaceholder,
+			LastUpdated:     &now,
+			Status:          anisync.StatusPlanToWatch,
+			EpisodesWatched: 8,
+		},
+		{
+			ID:          4,
+			Title:       anime4,
+			Image:       imgPlaceholder,
+			LastUpdated: &now,
+			Status:      anisync.StatusPlanToWatch,
+		},
+		{
+			ID:          5,
+			Title:       anime5,
+			Image:       imgPlaceholder,
+			LastUpdated: &now,
+			Status:      anisync.StatusPlanToWatch,
+		},
+		{
+			ID:          6,
+			Title:       anime6,
+			Image:       imgPlaceholder,
+			LastUpdated: &now,
+			Status:      anisync.StatusPlanToWatch,
+		},
+		{
+			ID:          7,
+			Title:       anime7,
+			Image:       imgPlaceholder,
+			LastUpdated: &now,
+			Status:      anisync.StatusOnHold,
+		},
+		{
+			ID:          8,
+			Title:       anime8,
+			Image:       imgPlaceholder,
+			LastUpdated: &now,
+			Status:      anisync.StatusOnHold,
+		},
+	}
+	// Everything fails.
+	syncFn := func(index int, anime anisync.Anime) error {
+		switch anime.ID {
+		case 1, 2, 3:
+			return fmt.Errorf("anime failed to be updated (but that's normal!)")
+		case 4, 5, 6:
+			return fmt.Errorf("anime failed to be added (but that's normal!)")
+		case 7, 8:
+			return fmt.Errorf("this error should not appear because 7 and 8 are in sync")
+		default:
+			return nil
+		}
+	}
+	return malist, hblist, syncFn
 }
 
 func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
@@ -224,7 +455,13 @@ func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
 	var malist, hblist []anisync.Anime
 	switch {
 	case hbu == "test1" && hbu == malu:
-		malist, hblist = test1()
+		malist, hblist, _ = test1()
+	case hbu == "test2" && hbu == malu:
+		malist, hblist, _ = test2()
+	case hbu == "test3" && hbu == malu:
+		malist, hblist, _ = test3()
+	case hbu == "test4" && hbu == malu:
+		malist, hblist, _ = test4()
 	default:
 		err := fmt.Errorf("accounts do not match or unknown test")
 		return NewAppError(err, "Test check: Could not run test case.", http.StatusUnauthorized)
