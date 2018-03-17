@@ -6,8 +6,6 @@ type MALClientStub struct {
 	client *mal.Client
 }
 
-func NewMALClientStub(malClient *mal.Client, malAgent string) *MALClientStub {
-	c := &MALClientStub{client: mal.NewClient(nil)}
-	c.client.SetUserAgent(malAgent)
-	return c
+func NewMALClientStub(malClient *mal.Client) *MALClientStub {
+	return &MALClientStub{client: mal.NewClient()}
 }

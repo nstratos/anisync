@@ -50,12 +50,12 @@ var compareTests = []struct {
 		UpToDate: []anisync.Anime{{ID: 1, Title: "Anime1", LastUpdated: &before}},
 	}},
 	{name: "NeedUpdate status", Diff: &anisync.Diff{
-		Left:  []anisync.Anime{{ID: 1, Title: "Anime1", Status: anisync.StatusCurrentlyWatching}},
-		Right: []anisync.Anime{{ID: 1, Title: "Anime1", Status: anisync.StatusCompleted}},
+		Left:  []anisync.Anime{{ID: 1, Title: "Anime1", Status: anisync.Current}},
+		Right: []anisync.Anime{{ID: 1, Title: "Anime1", Status: anisync.Completed}},
 		NeedUpdate: []anisync.AniDiff{
 			{
-				Anime:  anisync.Anime{ID: 1, Title: "Anime1", Status: anisync.StatusCompleted},
-				Status: &anisync.StatusDiff{Got: anisync.StatusCurrentlyWatching, Want: anisync.StatusCompleted},
+				Anime:  anisync.Anime{ID: 1, Title: "Anime1", Status: anisync.Completed},
+				Status: &anisync.StatusDiff{Got: anisync.Current, Want: anisync.Completed},
 			},
 		},
 	}},

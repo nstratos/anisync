@@ -74,11 +74,9 @@ func (c *Client) SyncMALAnime(diff Diff) *SyncResult {
 }
 
 func (c *Client) UpdateMALAnime(a Anime) error {
-	e, err := toMALEntry(a)
-	if err != nil {
-		return err
-	}
-	_, err = c.resources.UpdateMALAnimeEntry(a.ID, e)
+	e := toMALEntry(a)
+
+	_, err := c.resources.UpdateMALAnimeEntry(a.ID, e)
 	if err != nil {
 		return err
 	}
@@ -86,29 +84,22 @@ func (c *Client) UpdateMALAnime(a Anime) error {
 }
 
 func (c *Client) AddMALAnime(a Anime) error {
-	e, err := toMALEntry(a)
-	if err != nil {
-		return err
-	}
-	_, err = c.resources.AddMALAnimeEntry(a.ID, e)
+	e := toMALEntry(a)
+
+	_, err := c.resources.AddMALAnimeEntry(a.ID, e)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func toMALEntry(a Anime) (mal.AnimeEntry, error) {
+func toMALEntry(a Anime) mal.AnimeEntry {
 	e := mal.AnimeEntry{
 		Episode:        a.EpisodesWatched,
 		Comments:       a.Notes,
 		TimesRewatched: a.TimesRewatched,
+		Status:         toMALStatus(a.Status),
 	}
-	// Status
-	status, err := toMALStatus(a.Status)
-	if err != nil {
-		return mal.AnimeEntry{}, err
-	}
-	e.Status = status
 
 	// rating
 	if a.Rating != "" {
@@ -122,5 +113,5 @@ func toMALEntry(a Anime) (mal.AnimeEntry, error) {
 	if a.Rewatching {
 		e.EnableRewatching = 1
 	}
-	return e, nil
+	return e
 }

@@ -12,6 +12,6 @@ import (
 )
 
 func newAnisyncClient(httpClient *http.Client, malAgent string, r *http.Request) *anisync.Client {
-	resources := anisync.NewResources(mal.NewClient(httpClient), malAgent, hb.NewClient(httpClient))
+	resources := anisync.NewResources(mal.NewClient(mal.HTTPClient(httpClient)), malAgent, hb.NewClient(httpClient))
 	return anisync.NewClient(resources)
 }

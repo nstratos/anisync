@@ -1,21 +1,26 @@
 package anisync
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/nstratos/go-myanimelist/mal"
+)
 
 var fromMALStatusTests = []struct {
-	in  int
-	out string
+	in  mal.Status
+	out Status
 }{
-	{1, "currently-watching"},
-	{2, "completed"},
-	{3, "on-hold"},
-	{4, "dropped"},
-	{6, "plan-to-watch"},
+	{mal.Current, Current},
+	{mal.Completed, Completed},
+	{mal.OnHold, OnHold},
+	{mal.Dropped, Dropped},
+	{mal.Planned, Planned},
+	{0, Unknown},
 }
 
 func TestFromMALStatus(t *testing.T) {
 	for _, tt := range fromMALStatusTests {
-		got, _ := fromMALStatus(tt.in)
+		got := FromMALStatus(tt.in)
 		if want := tt.out; got != want {
 			t.Errorf("fromMALStatus(%q) => %q, want %q", tt.in, got, want)
 		}
@@ -23,37 +28,38 @@ func TestFromMALStatus(t *testing.T) {
 }
 
 func TestFromMALStatus_invalidStatus(t *testing.T) {
-	var in int
-	_, err := fromMALStatus(in)
-	if err == nil {
-		t.Errorf("fromMALStatus(%q) expected to return err", in)
+	var in mal.Status
+	got := FromMALStatus(in)
+	if want := Unknown; got != want {
+		t.Errorf("fromMALStatus(%q) = %v, want %v", in, got, want)
 	}
 }
 
 var toMALStatusTests = []struct {
-	in  string
-	out string
+	in  Status
+	out mal.Status
 }{
-	{"currently-watching", "1"},
-	{"completed", "2"},
-	{"on-hold", "3"},
-	{"dropped", "4"},
-	{"plan-to-watch", "6"},
+	{Current, mal.Current},
+	{Completed, mal.Completed},
+	{OnHold, mal.OnHold},
+	{Dropped, mal.Dropped},
+	{Planned, mal.Planned},
+	{Unknown, 0},
 }
 
 func TestToMALStatus(t *testing.T) {
 	for _, tt := range toMALStatusTests {
-		got, _ := toMALStatus(tt.in)
+		got := toMALStatus(tt.in)
 		if want := tt.out; got != want {
 			t.Errorf("toMALStatus(%q) => %q, want %q", tt.in, got, want)
 		}
 	}
 }
 
-func TestToMALStatus_invalidStatus(t *testing.T) {
-	var in string
-	_, err := toMALStatus(in)
-	if err == nil {
-		t.Errorf("toMALStatus(%q) expected to return err", in)
-	}
-}
+//func TestToMALStatus_invalidStatus(t *testing.T) {
+//	var in string
+//	_, err := toMALStatus(in)
+//	if err == nil {
+//		t.Errorf("toMALStatus(%q) expected to return err", in)
+//	}
+//}

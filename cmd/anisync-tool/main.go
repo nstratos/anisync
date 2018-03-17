@@ -118,7 +118,18 @@ func run() error {
 		*malUsername = sc.Text()
 	}
 
-	c := anisync.NewDefaultClient()
+	if *malPassword == "" {
+		fmt.Printf("Enter MyAnimeList.net password for username %v:\n", *malUsername)
+		pass := gopass.GetPasswdMasked()
+		*malPassword = string(pass)
+	}
+
+	c := anisync.NewDefaultClient(*malUsername, *malPassword)
+
+	if _, _, err := c.VerifyMALCredentials(*malUsername, *malPassword); err != nil {
+		return fmt.Errorf("MyAnimeList.net username and password do not match")
+	}
+	fmt.Println("Verification was successful!")
 
 	malist, _, err := c.GetMyAnimeList(*malUsername)
 	if err != nil {
@@ -154,17 +165,6 @@ func run() error {
 		return nil
 	}
 
-	if *malPassword == "" {
-		fmt.Printf("Enter MyAnimeList.net password for username %v:\n", *malUsername)
-		pass := gopass.GetPasswdMasked()
-		*malPassword = string(pass)
-	}
-
-	_, _, err = c.SetAndVerifyMALCredentials(*malUsername, *malPassword)
-	if err != nil {
-		return fmt.Errorf("MyAnimeList.net username and password do not match")
-	}
-	fmt.Println("Verification was successful!")
 	fmt.Println("Starting Update...")
 
 	syncResult := c.SyncMALAnime(*diff)

@@ -27,7 +27,7 @@ func fromHBEntries(list []hb.LibraryEntry) []Anime {
 func fromHBEntry(hbe hb.LibraryEntry) Anime {
 	a := Anime{
 		EpisodesWatched: hbe.EpisodesWatched,
-		Status:          hbe.Status,
+		Status:          fromHBStatus(hbe.Status),
 		LastUpdated:     hbe.UpdatedAt,
 		Notes:           hbe.Notes,
 		TimesRewatched:  hbe.RewatchedTimes,

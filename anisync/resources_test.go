@@ -19,6 +19,6 @@ func TestNewResources(t *testing.T) {
 		anisync.NewHBClient(hb.NewClient(nil)),
 	}
 	if got := c; !reflect.DeepEqual(got, want) {
-		t.Errorf("NewResources returned %+v, want %+v")
+		t.Errorf("NewResources returned %+v, want %+v", got, want)
 	}
 }

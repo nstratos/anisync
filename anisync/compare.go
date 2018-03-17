@@ -62,8 +62,8 @@ type AniDiff struct {
 }
 
 type StatusDiff struct {
-	Got  string
-	Want string
+	Got  Status
+	Want Status
 }
 
 type EpisodesWatchedDiff struct {

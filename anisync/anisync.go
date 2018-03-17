@@ -15,16 +15,17 @@ type Client struct {
 
 func (c *Client) Resources() Resources { return c.resources }
 
-func NewDefaultClient() *Client {
-	return &Client{resources: NewResources(mal.NewClient(nil), "", hb.NewClient(nil))}
+func NewDefaultClient(malUsername, malPassword string) *Client {
+	auth := mal.Auth(malUsername, malPassword)
+	return &Client{resources: NewResources(mal.NewClient(auth), "", hb.NewClient(nil))}
 }
 
 func NewClient(resources Resources) *Client {
 	return &Client{resources: resources}
 }
 
-func (c *Client) SetAndVerifyMALCredentials(username, password string) (*mal.User, *http.Response, error) {
-	u, resp, err := c.resources.SetAndVerifyCredentials(username, password)
+func (c *Client) VerifyMALCredentials(username, password string) (*mal.User, *http.Response, error) {
+	u, resp, err := c.resources.VerifyCredentials(username, password)
 	if resp == nil {
 		return u, nil, err
 	}
@@ -33,7 +34,7 @@ func (c *Client) SetAndVerifyMALCredentials(username, password string) (*mal.Use
 
 type Anime struct {
 	ID              int
-	Status          string
+	Status          Status
 	Title           string
 	EpisodesWatched int
 	LastUpdated     *time.Time

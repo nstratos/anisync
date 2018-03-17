@@ -21,13 +21,13 @@ func init() {
 		*MALClientStub
 		*HBClientStub
 	}{
-		NewMALClientStub(mal.NewClient(nil), ""),
+		NewMALClientStub(mal.NewClient()),
 		NewHBClientStub(hb.NewClient(nil)),
 	}
 	client = NewClient(resources)
 }
 
-func (c *MALClientStub) SetAndVerifyCredentials(username, password string) (*mal.User, *mal.Response, error) {
+func (c *MALClientStub) VerifyCredentials(username, password string) (*mal.User, *mal.Response, error) {
 	switch {
 	case username == "TestUsername" && password == "TestPassword":
 		return &mal.User{Username: "TestUsername"}, &mal.Response{Response: &http.Response{}}, nil
@@ -39,24 +39,24 @@ func (c *MALClientStub) SetAndVerifyCredentials(username, password string) (*mal
 }
 
 func TestClient_VerifyMALCredentials(t *testing.T) {
-	u, _, err := client.SetAndVerifyMALCredentials("TestUsername", "TestPassword")
+	u, _, err := client.VerifyMALCredentials("TestUsername", "TestPassword")
 	if err != nil {
-		t.Errorf("VerifyMALCredentials with correct username and password returned err")
+		t.Errorf("VerifyMALCredentials with correct username and password returned err: %v", err)
 	}
 	if got, want := u.Username, "TestUsername"; got != want {
-		t.Errorf("VerifyMALCredentials with correct username and password returned username %q, want %q\n")
+		t.Errorf("VerifyMALCredentials with correct username and password returned username %q, want %q\n", got, want)
 	}
 }
 
 func TestClient_VerifyMALCredentials_wrongPassword(t *testing.T) {
-	_, _, err := client.SetAndVerifyMALCredentials("TestUser", "WrongTestPassword")
+	_, _, err := client.VerifyMALCredentials("TestUser", "WrongTestPassword")
 	if err == nil {
 		t.Error("VerifyMALCredentials with wrong password expected to return err")
 	}
 }
 
 func TestClient_VerifyMALCredentials_noResponse(t *testing.T) {
-	_, resp, err := client.SetAndVerifyMALCredentials("TestNoResponse", "")
+	_, resp, err := client.VerifyMALCredentials("TestNoResponse", "")
 	if err == nil {
 		t.Error("VerifyMALCredentials with no response expected to return err")
 	}
@@ -66,9 +66,9 @@ func TestClient_VerifyMALCredentials_noResponse(t *testing.T) {
 }
 
 func TestNewDefaultClient(t *testing.T) {
-	c := NewDefaultClient()
+	c := NewDefaultClient("TestUsername", "TestPassword")
 	got := c.Resources()
-	want := NewResources(mal.NewClient(nil), "", hb.NewClient(nil))
+	want := NewResources(mal.NewClient(mal.Auth("TestUsername", "TestPassword")), "", hb.NewClient(nil))
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("NewDefaultClient.Resources() = \n%#v, want \n%#v", got, want)

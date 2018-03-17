@@ -37,7 +37,7 @@ func NewResources(malClient *mal.Client, malAgent string, hbClient *hb.Client) R
 // MAL is an interface describing all the operations that we need from the
 // MyAnimeList.net API.
 type MAL interface {
-	SetAndVerifyCredentials(username, password string) (*mal.User, *mal.Response, error)
+	VerifyCredentials(username, password string) (*mal.User, *mal.Response, error)
 	MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error)
 	UpdateMALAnimeEntry(id int, entry mal.AnimeEntry) (*mal.Response, error)
 	AddMALAnimeEntry(id int, entry mal.AnimeEntry) (*mal.Response, error)

@@ -1,6 +1,7 @@
 package anisync
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -36,6 +37,10 @@ func fromMALEntries(malist mal.AnimeList) ([]Anime, []badMALEntry) {
 			fails = append(fails, badMALEntry{MALAnime: mala, Error: err})
 			continue
 		}
+		if a.Status == Unknown {
+			fails = append(fails, badMALEntry{MALAnime: mala, Error: errors.New("unknown status")})
+			continue
+		}
 		anime = append(anime, a)
 	}
 	return anime, fails
@@ -48,14 +53,9 @@ func fromMALEntry(mala mal.Anime) (Anime, error) {
 		EpisodesWatched: mala.MyWatchedEpisodes,
 		TimesRewatched:  mala.MyRewatchingEp,
 		Image:           mala.SeriesImage,
+		Status:          FromMALStatus(mala.MyStatus),
 		//Notes:           mala.Comments, // MAL API does not send the comments.
 	}
-	// Status
-	status, err := fromMALStatus(mala.MyStatus)
-	if err != nil {
-		return Anime{}, fmt.Errorf("no status in Anime(ID: %v, Title: %q) : %v", a.ID, a.Title, err)
-	}
-	a.Status = status
 
 	// LastUpdated
 	lastUpdated, err := fromMALMyLastUpdated(mala.MyLastUpdated)
@@ -69,7 +69,7 @@ func fromMALEntry(mala mal.Anime) (Anime, error) {
 	score := float64(mala.MyScore) / 2
 	a.Rating = fmt.Sprintf("%.1f", score)
 	// Rewatching
-	if mala.MyRewatching == "1" {
+	if mala.MyRewatching == 1 {
 		a.Rewatching = true
 	}
 	return a, nil

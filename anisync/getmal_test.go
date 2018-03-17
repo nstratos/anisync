@@ -25,7 +25,7 @@ func (c *MALClientStub) MyAnimeList(username string) (*mal.AnimeList, *mal.Respo
 					MyStatus:          3,            // on-hold
 					MyScore:           7,            // Will become 3.5 as Rating.
 					MyLastUpdated:     "1440436506", // 2015-08-24 17:15:06 +0000 UTC
-					MyRewatching:      "1",
+					MyRewatching:      1,
 					MyRewatchingEp:    2,
 					SeriesImage:       "http://cdn.myanimelist.net/images/anime/1/test-image.jpg",
 				},
@@ -97,7 +97,7 @@ func TestClient_GetMyAnimeList(t *testing.T) {
 			ID:              1,
 			Title:           "series title",
 			EpisodesWatched: 5,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			Rating:          "3.5",
 			LastUpdated:     &lastUpdated,
 			Rewatching:      true,
@@ -123,7 +123,7 @@ func TestClient_GetMyAnimeList_noResponse(t *testing.T) {
 		t.Error("GetMyAnimeList for no response expected to return err")
 	}
 	if resp != nil {
-		t.Error("GetMyAnimeList for no response resp = %q, want %q", resp, nil)
+		t.Errorf("GetMyAnimeList for no response resp = %v, want %v", resp, nil)
 	}
 }
 
@@ -138,7 +138,7 @@ func TestClient_GetMyAnimeList_invalidTime(t *testing.T) {
 		{
 			ID:          2,
 			Title:       "normal title",
-			Status:      anisync.StatusDropped,
+			Status:      anisync.Dropped,
 			Rating:      "4.5",
 			LastUpdated: &lastUpdated,
 		},
@@ -160,13 +160,13 @@ func TestClient_GetMyAnimeList_invalidStatus(t *testing.T) {
 		{
 			ID:          2,
 			Title:       "normal status title",
-			Status:      anisync.StatusDropped,
+			Status:      anisync.Dropped,
 			Rating:      "4.0",
 			LastUpdated: &lastUpdated,
 		},
 	}
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetMyAnimeList returned %+v, want %+v", got, want)
+		t.Errorf("GetMyAnimeList \nhave: %+v\nwant: %+v", got, want)
 	}
 
 }

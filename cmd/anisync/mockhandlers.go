@@ -155,7 +155,7 @@ func test1() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "4.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 0,
 		},
 		{
@@ -184,7 +184,7 @@ func test1() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "4.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 0,
 		},
 		{
@@ -193,7 +193,7 @@ func test1() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:      "4.0",
 			Image:       imgPlaceholder,
 			LastUpdated: &now,
-			Status:      anisync.StatusCurrentlyWatching,
+			Status:      anisync.Current,
 		},
 		{
 			ID:              3,
@@ -238,7 +238,7 @@ func test2() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Title:           anime1,
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 2,
 		},
 	}
@@ -249,7 +249,7 @@ func test2() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Title:           anime1,
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 2,
 		},
 	}
@@ -273,7 +273,7 @@ func test3() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Title:           anime1,
 			Image:           imgPlaceholder,
 			LastUpdated:     &before,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 0,
 		},
 	}
@@ -285,7 +285,7 @@ func test3() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "4.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusCurrentlyWatching,
+			Status:          anisync.Current,
 			EpisodesWatched: 2,
 		},
 		{
@@ -294,7 +294,7 @@ func test3() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "3.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 0,
 		},
 	}
@@ -331,7 +331,7 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Title:           anime1,
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 0,
 		},
 		{
@@ -340,7 +340,7 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "3.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &before,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 0,
 		},
 		{
@@ -349,7 +349,7 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "4.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &before,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 0,
 		},
 		{
@@ -357,14 +357,14 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Title:       anime7,
 			Image:       imgPlaceholder,
 			LastUpdated: &before,
-			Status:      anisync.StatusOnHold,
+			Status:      anisync.OnHold,
 		},
 		{
 			ID:          8,
 			Title:       anime8,
 			Image:       imgPlaceholder,
 			LastUpdated: &now,
-			Status:      anisync.StatusOnHold,
+			Status:      anisync.OnHold,
 		},
 	}
 
@@ -375,7 +375,7 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "4.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusCurrentlyWatching,
+			Status:          anisync.Current,
 			EpisodesWatched: 2,
 		},
 		{
@@ -384,7 +384,7 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "3.0",
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusOnHold,
+			Status:          anisync.OnHold,
 			EpisodesWatched: 4,
 		},
 		{
@@ -393,7 +393,7 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Rating:          "4.5",
 			Image:           imgPlaceholder,
 			LastUpdated:     &now,
-			Status:          anisync.StatusPlanToWatch,
+			Status:          anisync.Planned,
 			EpisodesWatched: 8,
 		},
 		{
@@ -401,35 +401,35 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 			Title:       anime4,
 			Image:       imgPlaceholder,
 			LastUpdated: &now,
-			Status:      anisync.StatusPlanToWatch,
+			Status:      anisync.Planned,
 		},
 		{
 			ID:          5,
 			Title:       anime5,
 			Image:       imgPlaceholder,
 			LastUpdated: &now,
-			Status:      anisync.StatusPlanToWatch,
+			Status:      anisync.Planned,
 		},
 		{
 			ID:          6,
 			Title:       anime6,
 			Image:       imgPlaceholder,
 			LastUpdated: &now,
-			Status:      anisync.StatusPlanToWatch,
+			Status:      anisync.Planned,
 		},
 		{
 			ID:          7,
 			Title:       anime7,
 			Image:       imgPlaceholder,
 			LastUpdated: &now,
-			Status:      anisync.StatusOnHold,
+			Status:      anisync.OnHold,
 		},
 		{
 			ID:          8,
 			Title:       anime8,
 			Image:       imgPlaceholder,
 			LastUpdated: &now,
-			Status:      anisync.StatusOnHold,
+			Status:      anisync.OnHold,
 		},
 	}
 	// Everything fails.

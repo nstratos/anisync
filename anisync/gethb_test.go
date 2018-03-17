@@ -50,7 +50,7 @@ func TestClient_GetHBAnimeList(t *testing.T) {
 	want := []anisync.Anime{
 		{
 			ID:              56,
-			Status:          anisync.StatusPlanToWatch,
+			Status:          anisync.Planned,
 			Rating:          "4.5",
 			EpisodesWatched: 5,
 			LastUpdated:     &lastUpdated,

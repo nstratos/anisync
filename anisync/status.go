@@ -1,6 +1,19 @@
 package anisync
 
-import "fmt"
+import (
+	"github.com/nstratos/go-myanimelist/mal"
+)
+
+type Status int
+
+const (
+	Unknown Status = iota
+	Current
+	Planned
+	Completed
+	OnHold
+	Dropped
+)
 
 // Possible Anime status values.
 //
@@ -17,37 +30,54 @@ const (
 	StatusDropped           = "dropped"
 )
 
-func fromMALStatus(status int) (string, error) {
+func fromHBStatus(status string) Status {
 	switch status {
-	case 1:
-		return StatusCurrentlyWatching, nil
-	case 2:
-		return StatusCompleted, nil
-	case 3:
-		return StatusOnHold, nil
-	case 4:
-		return StatusDropped, nil
-	case 6:
-		return StatusPlanToWatch, nil
+	case StatusCurrentlyWatching:
+		return Current
+	case StatusPlanToWatch:
+		return Planned
+	case StatusCompleted:
+		return Completed
+	case StatusOnHold:
+		return OnHold
+	case StatusDropped:
+		return Dropped
 	default:
-		return "", fmt.Errorf("no valid status value provided")
+		return Unknown
 	}
 }
 
-func toMALStatus(status string) (string, error) {
+func FromMALStatus(status mal.Status) Status {
 	switch status {
-	case StatusCurrentlyWatching:
-		return "1", nil
-	case StatusCompleted:
-		return "2", nil
-	case StatusOnHold:
-		return "3", nil
-	case StatusDropped:
-		return "4", nil
-	case StatusPlanToWatch:
-		return "6", nil
+	case mal.Current:
+		return Current
+	case mal.Planned:
+		return Planned
+	case mal.Completed:
+		return Completed
+	case mal.OnHold:
+		return OnHold
+	case mal.Dropped:
+		return Dropped
 	default:
-		return "", fmt.Errorf("no valid status key provided")
+		return Unknown
+	}
+}
+
+func toMALStatus(status Status) mal.Status {
+	switch status {
+	case Current:
+		return mal.Current
+	case Planned:
+		return mal.Planned
+	case Completed:
+		return mal.Completed
+	case OnHold:
+		return mal.OnHold
+	case Dropped:
+		return mal.Dropped
+	default:
+		return 0
 	}
 }
 
