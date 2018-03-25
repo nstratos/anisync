@@ -5,7 +5,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/nstratos/go-hummingbird/hb"
 	"github.com/nstratos/go-myanimelist/mal"
 )
 
@@ -14,11 +13,6 @@ type Client struct {
 }
 
 func (c *Client) Resources() Resources { return c.resources }
-
-func NewDefaultClient(malUsername, malPassword string) *Client {
-	auth := mal.Auth(malUsername, malPassword)
-	return &Client{resources: NewResources(mal.NewClient(auth), "", hb.NewClient(nil))}
-}
 
 func NewClient(resources Resources) *Client {
 	return &Client{resources: resources}

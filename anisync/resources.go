@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/nstratos/go-hummingbird/hb"
+	"github.com/nstratos/go-kitsu/kitsu"
 	"github.com/nstratos/go-myanimelist/mal"
 )
 
@@ -14,6 +15,7 @@ import (
 type Resources interface {
 	MAL
 	HB
+	Kitsu
 }
 
 // NewResources returns a Resources implementation that consists of a MALClient
@@ -24,13 +26,15 @@ type Resources interface {
 // this function internally. In the typical case NewDefaultClient will be used
 // in the program while the combination of NewResources and NewClient will be
 // used for testing.
-func NewResources(malClient *mal.Client, malAgent string, hbClient *hb.Client) Resources {
+func NewResources(malClient *mal.Client, kitsuClient *kitsu.Client) Resources {
 	return struct {
 		*MALClient
 		*HBClient
+		*KitsuClient
 	}{
-		NewMALClient(malClient, malAgent),
-		NewHBClient(hbClient),
+		NewMALClient(malClient),
+		nil,
+		NewKitsuClient(kitsuClient),
 	}
 }
 
@@ -47,4 +51,8 @@ type MAL interface {
 // Hummingbird.me API.
 type HB interface {
 	HBAnimeList(username string) ([]hb.LibraryEntry, *http.Response, error)
+}
+
+type Kitsu interface {
+	KitsuAnimeList(userID string) ([]*kitsu.LibraryEntry, *kitsu.Response, error)
 }

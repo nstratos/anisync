@@ -14,33 +14,33 @@ const imgPlaceholder = "/static/assets/img/placeholder_100x145.png"
 func (app *App) handleTestSync(w http.ResponseWriter, r *http.Request) error {
 	// Receiving json from POST body.
 	t := struct {
-		HBUsername  string `json:"hbUsername"`
+		KitsuUserID string `json:"kitsuUserID"`
 		MALUsername string `json:"malUsername"`
 		MALPassword string `json:"malPassword"`
 	}{}
 	if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
 		return NewAppError(err, "Test sync: could not decode body.", http.StatusBadRequest)
 	}
-	hbu := t.HBUsername
+	kitsuUserID := t.KitsuUserID
 	malu := t.MALUsername
 
-	var malist, hblist []anisync.Anime
+	var malist, kitsuList []anisync.Anime
 	var syncFn syncFunc
 	switch {
-	case hbu == "test1" && hbu == malu:
-		malist, hblist, syncFn = test1()
-	case hbu == "test2" && hbu == malu:
-		malist, hblist, syncFn = test2()
-	case hbu == "test3" && hbu == malu:
-		malist, hblist, syncFn = test3()
-	case hbu == "test4" && hbu == malu:
-		malist, hblist, syncFn = test4()
+	case kitsuUserID == "test1" && kitsuUserID == malu:
+		malist, kitsuList, syncFn = test1()
+	case kitsuUserID == "test2" && kitsuUserID == malu:
+		malist, kitsuList, syncFn = test2()
+	case kitsuUserID == "test3" && kitsuUserID == malu:
+		malist, kitsuList, syncFn = test3()
+	case kitsuUserID == "test4" && kitsuUserID == malu:
+		malist, kitsuList, syncFn = test4()
 	default:
 		err := fmt.Errorf("accounts do not match or unknown test")
 		return NewAppError(err, "Test sync: Could not run test case.", http.StatusUnauthorized)
 	}
 
-	diff := anisync.Compare(malist, hblist)
+	diff := anisync.Compare(malist, kitsuList)
 	syncResult := syncMALAnimeTest(diff, syncFn)
 
 	// Including MyAnimeList account username in response.
@@ -449,25 +449,25 @@ func test4() ([]anisync.Anime, []anisync.Anime, syncFunc) {
 }
 
 func (app *App) handleTestCheck(w http.ResponseWriter, r *http.Request) error {
-	hbu := r.FormValue("hbUsername")
 	malu := r.FormValue("malUsername")
+	kitsuUserID := r.FormValue("kitsuUserID")
 
-	var malist, hblist []anisync.Anime
+	var malist, kitsuList []anisync.Anime
 	switch {
-	case hbu == "test1" && hbu == malu:
-		malist, hblist, _ = test1()
-	case hbu == "test2" && hbu == malu:
-		malist, hblist, _ = test2()
-	case hbu == "test3" && hbu == malu:
-		malist, hblist, _ = test3()
-	case hbu == "test4" && hbu == malu:
-		malist, hblist, _ = test4()
+	case kitsuUserID == "test1" && kitsuUserID == malu:
+		malist, kitsuList, _ = test1()
+	case kitsuUserID == "test2" && kitsuUserID == malu:
+		malist, kitsuList, _ = test2()
+	case kitsuUserID == "test3" && kitsuUserID == malu:
+		malist, kitsuList, _ = test3()
+	case kitsuUserID == "test4" && kitsuUserID == malu:
+		malist, kitsuList, _ = test4()
 	default:
 		err := fmt.Errorf("accounts do not match or unknown test")
 		return NewAppError(err, "Test check: Could not run test case.", http.StatusUnauthorized)
 	}
 
-	diff := anisync.Compare(malist, hblist)
+	diff := anisync.Compare(malist, kitsuList)
 
 	// Including MyAnimeList account username in mock response.
 	resp := struct {

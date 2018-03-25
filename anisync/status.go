@@ -1,6 +1,7 @@
 package anisync
 
 import (
+	"github.com/nstratos/go-kitsu/kitsu"
 	"github.com/nstratos/go-myanimelist/mal"
 )
 
@@ -14,6 +15,40 @@ const (
 	OnHold
 	Dropped
 )
+
+func (s Status) String() string {
+	switch s {
+	case Current:
+		return "Currently watching"
+	case Planned:
+		return "Plan to watch"
+	case Completed:
+		return "Completed"
+	case OnHold:
+		return "On hold"
+	case Dropped:
+		return "Dropped"
+	default:
+		return "Unknown"
+	}
+}
+
+func fromKitsuStatus(status string) Status {
+	switch status {
+	case kitsu.LibraryEntryStatusCurrent:
+		return Current
+	case kitsu.LibraryEntryStatusPlanned:
+		return Planned
+	case kitsu.LibraryEntryStatusCompleted:
+		return Completed
+	case kitsu.LibraryEntryStatusOnHold:
+		return OnHold
+	case kitsu.LibraryEntryStatusDropped:
+		return Dropped
+	default:
+		return Unknown
+	}
+}
 
 // Possible Anime status values.
 //

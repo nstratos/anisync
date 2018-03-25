@@ -9,13 +9,14 @@ import (
 	"net/http"
 )
 
-var port = flag.String("port", "8080", "server port")
-
 func main() {
+	var (
+		httpAddr = flag.String("http", ":8080", "the host and port on which the server should serve HTTP requests")
+	)
 	flag.Parse()
 
-	fmt.Println("Starting server at :" + *port)
-	if err := http.ListenAndServe(":"+*port, nil); err != nil {
+	fmt.Println("Starting server at", *httpAddr)
+	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
 		log.Fatal("ListenandServe:", err)
 	}
 

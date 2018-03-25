@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/howeyc/gopass"
+	"github.com/nstratos/go-kitsu/kitsu"
+	"github.com/nstratos/go-myanimelist/mal"
 
 	"bitbucket.org/nstratos/anisync/anisync"
 )
@@ -124,7 +126,11 @@ func run() error {
 		*malPassword = string(pass)
 	}
 
-	c := anisync.NewDefaultClient(*malUsername, *malPassword)
+	resources := anisync.NewResources(
+		mal.NewClient(mal.Auth(*malUsername, *malPassword)),
+		kitsu.NewClient(nil),
+	)
+	c := anisync.NewClient(resources)
 
 	if _, _, err := c.VerifyMALCredentials(*malUsername, *malPassword); err != nil {
 		return fmt.Errorf("MyAnimeList.net username and password do not match")

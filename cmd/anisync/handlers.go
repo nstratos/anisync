@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"bitbucket.org/nstratos/anisync/anisync"
+	"github.com/nstratos/go-kitsu/kitsu"
+	"github.com/nstratos/go-myanimelist/mal"
 )
 
 const assetsFolder = "ui/"
@@ -102,9 +104,9 @@ func NewMALError(resp *http.Response, err error, message string, status int) err
 	return newRemoteError(resp, err, message, status)
 }
 
-type hbErr remoteErr
+type kitsuErr remoteErr
 
-func NewHBError(resp *http.Response, err error, message string, status int) error {
+func NewKitsuError(resp *http.Response, err error, message string, status int) error {
 	return newRemoteError(resp, err, message, status)
 }
 
@@ -135,28 +137,38 @@ func writeJSON(w http.ResponseWriter, data interface{}) {
 
 }
 
-func getDiff(c *anisync.Client, malUsername, hbUsername string) (*anisync.Diff, error) {
+func getDiff(c *anisync.Client, malUsername, kitsuEmail string) (*anisync.Diff, error) {
 	malist, resp, err := c.GetMyAnimeList(malUsername)
 	if err != nil {
 		return nil, NewMALError(resp, err, "Could not get MyAnimeList to compare.", http.StatusConflict)
 	}
 
-	hblist, resp, err := c.GetHBAnimeList(hbUsername)
+	kitsuList, kitsuResp, err := c.GetKitsuAnimeList(kitsuEmail)
 	if err != nil {
-		return nil, NewHBError(resp, err, "Could not get Hummingbird list to compare.", http.StatusConflict)
+		return nil, NewKitsuError(kitsuResp.Response, err, "Could not get Kitsu list to compare.", http.StatusConflict)
 	}
-	diff := anisync.Compare(malist, hblist)
+	_kitsuList := make([]anisync.Anime, 0)
+	for _, a := range kitsuList {
+		_kitsuList = append(_kitsuList, *a)
+	}
+	diff := anisync.Compare(malist, _kitsuList)
 
 	return diff, err
 }
 
 func (app *App) handleCheck(w http.ResponseWriter, r *http.Request) error {
-	hbUsername := r.FormValue("hbUsername")
+	// preparing anisync client
+	httpcl := httpClientFromRequest(r)
+	malClient := mal.NewClient(
+		mal.HTTPClient(httpcl),
+	)
+	kitsuClient := kitsu.NewClient(httpcl)
+	resources := anisync.NewResources(malClient, kitsuClient)
+	c := anisync.NewClient(resources)
+
 	malUsername := r.FormValue("malUsername")
-
-	c := newAnisyncClient(app.httpClient, "", r)
-
-	diff, err := getDiff(c, malUsername, hbUsername)
+	kitsuUserID := r.FormValue("kitsuUserID")
+	diff, err := getDiff(c, malUsername, kitsuUserID)
 	if err != nil {
 		return err
 	}
@@ -183,7 +195,7 @@ func (app *App) handleCheck(w http.ResponseWriter, r *http.Request) error {
 func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 	// Receiving json from POST body.
 	t := struct {
-		HBUsername  string `json:"hbUsername"`
+		KitsuUserID string `json:"kitsuUserID"`
 		MALUsername string `json:"malUsername"`
 		MALPassword string `json:"malPassword"`
 	}{}
@@ -192,20 +204,28 @@ func (app *App) handleSync(w http.ResponseWriter, r *http.Request) error {
 		return NewAppError(err, "Sync: Could not decode request.", http.StatusBadRequest)
 	}
 
-	c := newAnisyncClient(app.httpClient, "", r)
+	// preparing anisync client
+	httpcl := httpClientFromRequest(r)
+	malClient := mal.NewClient(
+		mal.HTTPClient(httpcl),
+		mal.Auth(t.MALUsername, t.MALPassword),
+	)
+	kitsuClient := kitsu.NewClient(httpcl)
+	resources := anisync.NewResources(malClient, kitsuClient)
+	c := anisync.NewClient(resources)
 
-	diff, err := getDiff(c, t.MALUsername, t.HBUsername)
+	diff, err := getDiff(c, t.MALUsername, t.KitsuUserID)
 	if err != nil {
 		return err
 	}
 
-	if _, resp, err := c.VerifyMALCredentials(t.MALUsername, t.MALPassword); err != nil {
-		return NewMALError(resp, err, "Sync: Could not verify MAL credentials.", http.StatusUnauthorized)
-	}
+	//if _, resp, err := c.VerifyMALCredentials(t.MALUsername, t.MALPassword); err != nil {
+	//	return NewMALError(resp, err, "Sync: Could not verify MAL credentials.", http.StatusUnauthorized)
+	//}
 
 	syncResp := c.SyncMALAnime(*diff)
 
-	diff, err = getDiff(c, t.MALUsername, t.HBUsername)
+	diff, err = getDiff(c, t.MALUsername, t.KitsuUserID)
 	if err != nil {
 		return err
 	}
@@ -273,7 +293,15 @@ func (app *App) handleMALVerify(w http.ResponseWriter, r *http.Request) error {
 		t.MALUsername,
 	}
 
-	c := newAnisyncClient(app.httpClient, "", r)
+	// preparing anisync client
+	httpcl := httpClientFromRequest(r)
+	malClient := mal.NewClient(
+		mal.HTTPClient(httpcl),
+		mal.Auth(t.MALUsername, t.MALPassword),
+	)
+	kitsuClient := kitsu.NewClient(httpcl)
+	resources := anisync.NewResources(malClient, kitsuClient)
+	c := anisync.NewClient(resources)
 
 	_, _, err = c.VerifyMALCredentials(t.MALUsername, t.MALPassword)
 	if err == nil {

@@ -3,12 +3,12 @@ package anisync_test
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 
 	. "bitbucket.org/nstratos/anisync/anisync"
 
 	"github.com/nstratos/go-hummingbird/hb"
+	"github.com/nstratos/go-kitsu/kitsu"
 	"github.com/nstratos/go-myanimelist/mal"
 )
 
@@ -20,9 +20,11 @@ func init() {
 	resources := struct {
 		*MALClientStub
 		*HBClientStub
+		*KitsuClientStub
 	}{
 		NewMALClientStub(mal.NewClient()),
 		NewHBClientStub(hb.NewClient(nil)),
+		NewKitsuClientStub(kitsu.NewClient(nil)),
 	}
 	client = NewClient(resources)
 }
@@ -62,15 +64,5 @@ func TestClient_VerifyMALCredentials_noResponse(t *testing.T) {
 	}
 	if resp != nil {
 		t.Error("VerifyMALCredentials with no response expected to return nil response")
-	}
-}
-
-func TestNewDefaultClient(t *testing.T) {
-	c := NewDefaultClient("TestUsername", "TestPassword")
-	got := c.Resources()
-	want := NewResources(mal.NewClient(mal.Auth("TestUsername", "TestPassword")), "", hb.NewClient(nil))
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("NewDefaultClient.Resources() = \n%#v, want \n%#v", got, want)
 	}
 }
