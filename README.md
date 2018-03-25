@@ -7,6 +7,6 @@ Live demo: https://ani-sync.appspot.com/
 
 ## Screenshots
 
-![anisync checking](/screenshots/anisync_check.png?raw=true "Checking for updates")
+![anisync checking](/screenshots/anisync-check.png?raw=true "Checking for updates")
 
-![anisync after sync](/screenshots/anisync_sync.png?raw=true "After pressing the Sync button")
+![anisync after sync](/screenshots/anisync-sync.png?raw=true "After pressing the Sync button")
