@@ -39,15 +39,13 @@
             <a></a>
           </label>
           <fieldset>
-            <input type="text" name="hbUsername" ng-model="req.hbUsername" title="Your Hummingbird.me username"
-              placeholder="HB username" class="sidebar-input pure-input-1" required>
+            <input type="text" name="kitsuUserID" ng-model="req.kitsuUserID" title="Your kitsu.io user ID"
+              placeholder="Kitsu user ID" class="sidebar-input pure-input-1" required>
             <input type="text" name="malUsername" ng-model="req.malUsername" title="Your MyAnimeList.net username"
               placeholder="MAL username" class="sidebar-input pure-input-1" required>
             <input type="password" name="malPassword" ng-model="req.malPassword" title="Your MyAnimeList.net password"
               placeholder="MAL Password" class="sidebar-input pure-input-1" ng-show="switchOn"
-              id="malPasswordInput" ng-cloak ng-required="switchOn" ng-remote-validate="{{malVerifyURL}}"
-              ng-remote-throttle="{{malVerifyDelay}}">
-            <span ng-cloak ng-show="mainForm.malPassword.$error.ngRemoteValidate">Password does not match MAL username</span>
+              id="malPasswordInput" ng-cloak ng-required="switchOn">
 
             <div class="pure-controls">
               <button type="button" ng-click="check(req)" class="pure-button sidebar-button"

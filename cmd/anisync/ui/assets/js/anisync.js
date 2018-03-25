@@ -1,5 +1,29 @@
 var anisyncApp = angular.module('anisyncApp', ['ngMdIcons', 'anisyncControllers', 'anisyncServices', 'ngProgress', 'remoteValidation']);
 
+anisyncApp.filter('statusFilter', function() {
+  return function(s) {
+    switch (s) {
+    case 1:
+      return "Currently watching";
+      break;
+    case 2:
+      return "Plan to watch";
+      break;
+    case 3:
+      return "Completed";
+      break;
+    case 4:
+      return "On hold";
+      break;
+    case 5:
+      return "Dropped";
+      break;
+    default:
+      return "Unknown";
+    }
+  }
+});
+
 var anisyncServices = angular.module('anisyncServices', ['ngResource']);
 
 anisyncServices.factory('Anisync', ['$resource',
@@ -54,7 +78,7 @@ anisyncControllers.controller('AnisyncCtrl', ['$scope', 'Anisync', 'ngProgressFa
       $scope.mainForm.malPassword.$setPristine();
       $scope.mainForm.malPassword.$setUntouched();
       angular.element(document.querySelector('#malPasswordInput')).val("");
-      angular.element(document.querySelector('#syncButton')).attr("disabled", "disabled");
+      //angular.element(document.querySelector('#syncButton')).attr("disabled", "disabled");
     };
     // turnSwitchOff
     $scope.turnSwitchOff = function() {
