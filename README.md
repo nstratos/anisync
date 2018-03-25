@@ -1,7 +1,7 @@
 # Anisync
 
-A web application and command line tool that can transfer a Kitsu.io anime list
-to MyAnimeList.net.
+A web application and command line tool that can transfer a [Kitsu.io](https://kitsu.io) anime list
+to [MyAnimeList.net](https://myanimelist.net/).
 
 Live demo: https://ani-sync.appspot.com/
 
