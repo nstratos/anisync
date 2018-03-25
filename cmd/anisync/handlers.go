@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"bitbucket.org/nstratos/anisync/anisync"
+	"github.com/nstratos/anisync/anisync"
 	"github.com/nstratos/go-kitsu/kitsu"
 	"github.com/nstratos/go-myanimelist/mal"
 )

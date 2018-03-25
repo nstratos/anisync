@@ -9,7 +9,7 @@ import (
 
 	"github.com/nstratos/go-myanimelist/mal"
 
-	"bitbucket.org/nstratos/anisync/anisync"
+	"github.com/nstratos/anisync/anisync"
 )
 
 func (c *MALClientStub) MyAnimeList(username string) (*mal.AnimeList, *mal.Response, error) {

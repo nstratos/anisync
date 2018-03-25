@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"bitbucket.org/nstratos/anisync/anisync"
+	"github.com/nstratos/anisync/anisync"
 
 	"github.com/nstratos/go-myanimelist/mal"
 )

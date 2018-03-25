@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	. "bitbucket.org/nstratos/anisync/anisync"
+	. "github.com/nstratos/anisync/anisync"
 
 	"github.com/nstratos/go-hummingbird/hb"
 	"github.com/nstratos/go-kitsu/kitsu"

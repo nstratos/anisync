@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/nstratos/anisync/anisync"
+	"github.com/nstratos/anisync/anisync"
 )
 
 var (

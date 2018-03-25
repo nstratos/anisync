@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"bitbucket.org/nstratos/anisync/anisync"
+	"github.com/nstratos/anisync/anisync"
 )
 
 const imgPlaceholder = "/static/assets/img/placeholder_100x145.png"
