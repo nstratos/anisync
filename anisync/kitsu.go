@@ -29,18 +29,18 @@ func (c *KitsuClient) KitsuAnimeList(userID string) ([]*kitsu.LibraryEntry, *kit
 	)
 }
 
-func (c *Client) GetKitsuAnimeList(username string) ([]*Anime, *kitsu.Response, error) {
+func (c *Client) GetKitsuAnimeList(username string) ([]Anime, *kitsu.Response, error) {
 	entries, resp, err := c.resources.KitsuAnimeList(username)
 	if err != nil {
 		return nil, resp, err
 	}
-	var anime []*Anime
+	var anime []Anime
 	for _, e := range entries {
 		a, err := fromKitsuEntry(e)
 		if err != nil {
 			return nil, resp, err
 		}
-		anime = append(anime, a)
+		anime = append(anime, *a)
 	}
 	return anime, resp, nil
 }

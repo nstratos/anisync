@@ -147,11 +147,7 @@ func getDiff(c *anisync.Client, malUsername, kitsuEmail string) (*anisync.Diff, 
 	if err != nil {
 		return nil, NewKitsuError(kitsuResp.Response, err, "Could not get Kitsu list to compare.", http.StatusConflict)
 	}
-	_kitsuList := make([]anisync.Anime, 0)
-	for _, a := range kitsuList {
-		_kitsuList = append(_kitsuList, *a)
-	}
-	diff := anisync.Compare(malist, _kitsuList)
+	diff := anisync.Compare(malist, kitsuList)
 
 	return diff, err
 }

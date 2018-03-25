@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	hbUsername  = flag.String("hbu", "", "Hummingbird.me username (or set HB_USERNAME)")
+	kitsuUserID = flag.String("kitsuid", "", "Kitsu.io user ID (or set KITSU_USER_ID)")
 	malUsername = flag.String("malu", "", "MyAnimeList.net username (or set MAL_USERNAME)")
 	malPassword = flag.String("malp", "", "MyAnimeList.net password (or set MAL_PASSWORD)")
 	yesFlag     = flag.Bool("y", false, "answer yes in final confirmation")
@@ -38,17 +38,17 @@ func findAnimeInListByID(anime, list []anisync.Anime, w io.Writer) {
 	fmt.Fprintf(w, "Found %d matches on list out of %d\n", matches, len(list))
 }
 
-const help = `anisync-tool: Sync a Hummingbird.me anime list back to MyAnimeList.net.
+const help = `anisync-tool: Sync a Kitsu.io anime list back to MyAnimeList.net.
 
 Usage: anisync-tool [options]...
 
 Options:
 
-  -hbu   Hummingbird.me username
-  -malu  MyAnimeList.net username
-  -malp  MyAnimeList.net password
-  -y     answer yes in final confirmation
-  -help  show detailed help message
+  -kitsuid Kitsu.io user ID
+  -malu    MyAnimeList.net username
+  -malp    MyAnimeList.net password
+  -y       answer yes in final confirmation
+  -help    show detailed help message
 
 By default, the program will ask for any credentials not provided by the
 options and will ask for confirmation one final time before syncing. The -y
@@ -58,17 +58,17 @@ either through options or environment variables.
 
 Examples:
 
-% anisync-tool -hbu='AnimeFan'
+% anisync-tool -kitsuid='AnimeFan'
 
-  Only the Hummingbird.me username is provided. The program will ask for the
+  Only the Kitsu.io user ID is provided. The program will ask for the
   MyAnimeList.net username, password and confirmation before syncing.
 
-% anisync-tool -y -hbu='AnimeFan' -malu='AnimeFan' -malp='password'
+% anisync-tool -y -kitsuid='AnimeFan' -malu='AnimeFan' -malp='password'
 
   All the credentials are provided through options. The program will not ask
   for confirmation before syncing.
 
-% HB_USERNAME='AnimeFan' MAL_USERNAME='AnimeFan' MAL_PASSWORD='password' anisync-tool
+% KITSU_USER_ID='AnimeFan' MAL_USERNAME='AnimeFan' MAL_PASSWORD='password' anisync-tool
 
   All the credentials are provided through environment variables. The program
   will ask for confirmation before syncing.
@@ -96,8 +96,8 @@ func run() error {
 		os.Exit(2)
 	}
 
-	if *hbUsername == "" {
-		*hbUsername = os.Getenv("HB_USERNAME")
+	if *kitsuUserID == "" {
+		*kitsuUserID = os.Getenv("KITSU_USER_ID")
 	}
 	if *malUsername == "" {
 		*malUsername = os.Getenv("MAL_USERNAME")
@@ -106,11 +106,11 @@ func run() error {
 		*malPassword = os.Getenv("MAL_PASSWORD")
 	}
 
-	if *hbUsername == "" {
+	if *kitsuUserID == "" {
 		sc := bufio.NewScanner(os.Stdin)
-		fmt.Print("Enter Hummingbird.me username: ")
+		fmt.Print("Enter Kitsu.io user ID: ")
 		sc.Scan()
-		*hbUsername = sc.Text()
+		*kitsuUserID = sc.Text()
 	}
 
 	if *malUsername == "" {
@@ -120,34 +120,23 @@ func run() error {
 		*malUsername = sc.Text()
 	}
 
-	if *malPassword == "" {
-		fmt.Printf("Enter MyAnimeList.net password for username %v:\n", *malUsername)
-		pass := gopass.GetPasswdMasked()
-		*malPassword = string(pass)
-	}
-
 	resources := anisync.NewResources(
 		mal.NewClient(mal.Auth(*malUsername, *malPassword)),
 		kitsu.NewClient(nil),
 	)
 	c := anisync.NewClient(resources)
 
-	if _, _, err := c.VerifyMALCredentials(*malUsername, *malPassword); err != nil {
-		return fmt.Errorf("MyAnimeList.net username and password do not match")
-	}
-	fmt.Println("Verification was successful!")
-
-	malist, _, err := c.GetMyAnimeList(*malUsername)
+	myAnimeList, _, err := c.GetMyAnimeList(*malUsername)
 	if err != nil {
 		return fmt.Errorf("could not get MyAnimeList.net anime list %v", err)
 	}
 
-	hblist, _, err := c.GetHBAnimeList(*hbUsername)
+	kitsuList, _, err := c.GetKitsuAnimeList(*kitsuUserID)
 	if err != nil {
-		return fmt.Errorf("could not get Hummingbird.me anime list %v", err)
+		return fmt.Errorf("could not get Kitsu.io anime list %v", err)
 	}
 
-	diff := anisync.Compare(malist, hblist)
+	diff := anisync.Compare(myAnimeList, kitsuList)
 
 	printDiffReport(*diff)
 
@@ -170,6 +159,17 @@ func run() error {
 	if !proceed {
 		return nil
 	}
+
+	if *malPassword == "" {
+		fmt.Printf("Enter MyAnimeList.net password for username %v:\n", *malUsername)
+		pass := gopass.GetPasswdMasked()
+		*malPassword = string(pass)
+	}
+
+	if _, _, err := c.VerifyMALCredentials(*malUsername, *malPassword); err != nil {
+		return fmt.Errorf("MyAnimeList.net username and password do not match")
+	}
+	fmt.Println("Verification was successful!")
 
 	fmt.Println("Starting Update...")
 
@@ -208,7 +208,7 @@ func printDiffReport(diff anisync.Diff) {
 		printAniDiff(u)
 	}
 	fmt.Println()
-	fmt.Printf("Hummingbird entries: %v\n", len(diff.Right))
+	fmt.Printf("Kitsu entries: %v\n", len(diff.Right))
 	fmt.Printf("MyAnimelist entries: %v\n", len(diff.Left))
 	fmt.Printf("(===) Up to date: %v\n", len(diff.UpToDate))
 	fmt.Printf("( < ) Okay: %v\n", len(diff.Uncertain))
