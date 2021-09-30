@@ -1,0 +1,17 @@
+runtime: go113
+
+main: ./cmd/anisync
+
+handlers:
+  - url: /static
+    static_dir: cmd/anisync/ui
+
+  - url: /
+    static_files: cmd/anisync/ui/index.html
+    upload: cmd/anisync/ui/index.html
+
+  - url: /.*
+    secure: always
+    redirect_http_response_code: 301
+    script: auto
+

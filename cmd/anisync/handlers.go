@@ -12,30 +12,6 @@ import (
 	"github.com/nstratos/go-myanimelist/mal"
 )
 
-const assetsFolder = "ui/"
-
-func init() {
-
-	// Preparing ui
-	uiHandler := http.FileServer(http.Dir(assetsFolder))
-	http.Handle("/static/", http.StripPrefix("/static", uiHandler))
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		uiHandler.ServeHTTP(w, r)
-	})
-
-	app := &App{
-		httpClient: http.DefaultClient,
-	}
-
-	// API handlers
-	http.Handle("/api/check", appHandler(app.handleCheck))
-	http.Handle("/api/sync", appHandler(app.handleSync))
-	http.Handle("/api/mal-verify", appHandler(app.handleMALVerify))
-	http.Handle("/api/mock/check", appHandler(app.handleTestCheck))
-	http.Handle("/api/mock/sync", appHandler(app.handleTestSync))
-	http.Handle("/api/mock/mal-verify", appHandler(app.handleTestMALVerify))
-}
-
 type App struct {
 	httpClient *http.Client
 }
@@ -134,7 +110,6 @@ func writeJSON(w http.ResponseWriter, data interface{}) {
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
 }
 
 func getDiff(c *anisync.Client, malUsername, kitsuEmail string) (*anisync.Diff, error) {

@@ -15,9 +15,9 @@
   <!--[if gt IE 8]><!-->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/pure/0.6.0/grids-responsive-min.css">
   <!--<![endif]-->
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/toggle-switch.css">
-  <link rel="stylesheet" href="assets/css/ngProgress.css">
+  <link rel="stylesheet" href="/static/assets/css/main.css">
+  <link rel="stylesheet" href="/static/assets/css/toggle-switch.css">
+  <link rel="stylesheet" href="/static/assets/css/ngProgress.css">
 </head>
 
 <body ng-controller="AnisyncCtrl">
@@ -66,13 +66,13 @@
         <div class="results" ng-cloak>
           <!-- <h1 ng-if="checkResp" class="content-subhead">Check results</h1> -->
           <div class="pie-holder" data-loading ng-show="loading">
-            <img class="pie" src="assets/img/pie.gif" />
+            <img class="pie" src="/static/assets/img/pie.gif" />
           </div>
-          <div ng-include="'part/status.html'"></div>
-          <ul ng-include="'part/needupdate.html'"></ul>
-          <ul ng-include="'part/missing.html'"></ul>
-          <ul ng-include="'part/uptodate.html'"></ul>
-          <ul ng-include="'part/okay.html'"></ul>
+          <div ng-include="'/static/part/status.html'"></div>
+          <ul ng-include="'/static/part/needupdate.html'"></ul>
+          <ul ng-include="'/static/part/missing.html'"></ul>
+          <ul ng-include="'/static/part/uptodate.html'"></ul>
+          <ul ng-include="'/static/part/okay.html'"></ul>
         </div>
       </div>
     </div>
@@ -82,9 +82,9 @@
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-resource.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-material-icons/0.6.0/angular-material-icons.min.js"></script>
-  <script src="assets/js/anisync.js"></script>
-  <script src="assets/js/ngProgress.min.js"></script>
-  <script src="assets/js/ngRemoteValidate.js"></script>
+  <script src="/static/assets/js/anisync.js"></script>
+  <script src="/static/assets/js/ngProgress.min.js"></script>
+  <script src="/static/assets/js/ngRemoteValidate.js"></script>
 </body>
 
 </html>
