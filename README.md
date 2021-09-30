@@ -10,3 +10,18 @@ Live demo: https://ani-sync.appspot.com/
 ![anisync checking](/screenshots/anisync-check.png?raw=true "Checking for updates")
 
 ![anisync after sync](/screenshots/anisync-sync.png?raw=true "After pressing the Sync button")
+
+## Installation
+
+Install Cloud SDK: https://cloud.google.com/sdk/docs/install
+
+    gcloud auth login
+    gcloud components install app-engine-go
+
+## Deployment
+
+    gcloud app deploy
+    gcloud app browse
+
+Note: On Windows the path for the gcloud command by default only works on
+Command Prompt and not PowerShell.
