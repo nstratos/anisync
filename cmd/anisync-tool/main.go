@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/howeyc/gopass"
 	"github.com/nstratos/go-kitsu/kitsu"
 	"github.com/nstratos/go-myanimelist/mal"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/nstratos/anisync/anisync"
 )
@@ -75,13 +75,11 @@ Examples:
 
 `
 
-func Usage() {
-	fmt.Fprintln(os.Stderr, "Usage: anisync-tool [options]...")
-	flag.PrintDefaults()
-}
-
 func main() {
-	flag.Usage = Usage
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Usage: anisync-tool [options]...")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
 	if err := run(); err != nil {
@@ -162,7 +160,10 @@ func run() error {
 
 	if *malPassword == "" {
 		fmt.Printf("Enter MyAnimeList.net password for username %v:\n", *malUsername)
-		pass := gopass.GetPasswdMasked()
+		pass, err := terminal.ReadPassword(0)
+		if err != nil {
+			return fmt.Errorf("reading password: %v", err)
+		}
 		*malPassword = string(pass)
 	}
 
