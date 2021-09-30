@@ -2,8 +2,6 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.1 h1:YF8+flBXS5eO826T4nzqPrxfhQThhXl0YzfuUPu4SBg=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
-github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c h1:aY2hhxLhjEAbfXOx2nRJxCXezC6CO2V/yN+OCr1srtk=
-github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c/go.mod h1:lADxMC39cJJqL93Duh1xhAs4I2Zs8mKS89XWXFGp9cs=
 github.com/nstratos/go-hummingbird v0.0.0-20160526073746-539715ff8e51 h1:cBMyYqT377P5ylRYQQe3WSFmz+Ngt1gnPvg0b20oN9I=
 github.com/nstratos/go-hummingbird v0.0.0-20160526073746-539715ff8e51/go.mod h1:zxRuV3641kJd96oXtW1SLWYsG1WHS5zkc+sTkwdl1D8=
 github.com/nstratos/go-kitsu v0.0.0-20180327171941-0c844854d3e1 h1:9PBoFc7M8A4BAKuKWr79WgRNrBIA6wZfS0Jgwpj9KBI=

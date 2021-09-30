@@ -1,0 +1,23 @@
+# github.com/nstratos/go-hummingbird v0.0.0-20160526073746-539715ff8e51
+## explicit
+github.com/nstratos/go-hummingbird/hb
+# github.com/nstratos/go-kitsu v0.0.0-20180327171941-0c844854d3e1
+## explicit
+github.com/nstratos/go-kitsu/kitsu
+github.com/nstratos/go-kitsu/kitsu/internal/jsonapi
+# github.com/nstratos/go-myanimelist v0.0.0-20200604201559-0ba19f529526
+## explicit
+github.com/nstratos/go-myanimelist/mal
+# github.com/nstratos/jsonapi v0.0.0-20180216150350-8c8652d58474
+## explicit
+github.com/nstratos/jsonapi
+# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+## explicit
+golang.org/x/crypto/ssh/terminal
+# golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+## explicit
+# golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+# google.golang.org/appengine v1.6.6
+## explicit
