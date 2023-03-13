@@ -20,8 +20,8 @@ Install Cloud SDK: https://cloud.google.com/sdk/docs/install
 
 ## Deployment
 
-    gcloud app deploy
-    gcloud app browse
+    gcloud app deploy --project=ani-sync
+    gcloud app browse --project=ani-sync
 
 Note: On Windows the path for the gcloud command by default only works on
 Command Prompt and not PowerShell.
