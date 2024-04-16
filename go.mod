@@ -7,7 +7,7 @@ require (
 	github.com/nstratos/go-kitsu v0.0.0-20180327171941-0c844854d3e1
 	github.com/nstratos/go-myanimelist v0.0.0-20200604201559-0ba19f529526
 	github.com/nstratos/jsonapi v0.0.0-20180216150350-8c8652d58474 // indirect
-	golang.org/x/crypto v0.7.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 )
